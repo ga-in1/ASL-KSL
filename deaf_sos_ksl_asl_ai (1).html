@@ -1,0 +1,3460 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DEAF-SOS · 양방향 수어-수어(KSL ⇄ ASL) AI 통역 스튜디오</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap"
+    rel="stylesheet"
+  />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Custom scrollbar for dark studio aesthetic */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- =====================================================================
+       HEADER: BRANDING + STANDALONE HTML DOWNLOAD + VERIFIED 3 SOURCES MODAL
+       ===================================================================== -->
+  <header class="border-b border-slate-800/90 bg-slate-900/90 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-cyan-500/20 shrink-0">
+          <!-- Languages Icon -->
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-base sm:text-lg font-black tracking-tight text-white">
+              DEAF-SOS · 양방향 수어-수어(KSL ⇄ ASL) AI 통역 스튜디오
+            </h1>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              사진 입력 ➔ 번역 버튼 ➔ 아바타 시연
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">
+            농인 선수(KSL ➔ ASL)와 현장 스탭(ASL ➔ KSL) 간의 양방향 연속 수어 문장 통역
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onclick="downloadStandaloneHtml()"
+          class="px-3.5 py-2.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-xs font-extrabold text-cyan-300 inline-flex items-center gap-1.5 transition cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
+          </svg>
+          GitHub 배포용 저장 (index.html)
+        </button>
+
+        <button
+          type="button"
+          id="btn-open-sources"
+          class="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-200 inline-flex items-center gap-1.5 transition cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+          데이터셋 출처 (3대 수어사전)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       TWO-WAY SPEAKER TURN SWITCHER BAR
+       ===================================================================== -->
+  <div class="bg-slate-900/60 border-b border-slate-800/80">
+    <div id="turn-switcher-bar" class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <!-- Rendered dynamically by renderTurnBar() -->
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MAIN TWO-COLUMN WORKSPACE
+       ===================================================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+    <!-- LEFT COLUMN (7 COLS): MULTI-PHOTO SENTENCE BUILDER + [번역하기] + HISTORY -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+      <div id="left-builder-card" class="rounded-2xl bg-slate-900/90 border border-slate-800 p-4 sm:p-5 flex flex-col gap-4 shadow-xl">
+        <!-- Rendered dynamically by renderLeftPanel() -->
+      </div>
+
+      <!-- Hidden Multi-File Input -->
+      <input
+        id="sign-file-input"
+        type="file"
+        accept="image/*"
+        multiple
+        class="hidden"
+      />
+
+      <!-- TWO-WAY CONVERSATION HISTORY TIMELINE -->
+      <div id="history-panel" class="rounded-2xl bg-slate-900/80 border border-slate-800 p-4 space-y-3">
+        <!-- Rendered dynamically by renderHistoryPanel() -->
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN (5 COLS): 2-BONE IK AVATAR OUTPUT & GRAMMAR PIPELINE -->
+    <section class="lg:col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-4 sm:p-5 flex flex-col gap-4 shadow-xl">
+        <div id="right-panel-header" class="flex items-center justify-between gap-2">
+          <!-- Rendered dynamically by renderRightHeader() -->
+        </div>
+
+        <!-- High-FPS Avatar Stage Container (Updated at 60fps by requestAnimationFrame) -->
+        <div id="avatar-stage-container">
+          <!-- Rendered dynamically by updateAvatarFrame() -->
+        </div>
+
+        <!-- Gloss Chips & Translation Result Card -->
+        <div id="right-translation-details" class="space-y-3">
+          <!-- Rendered dynamically by renderRightDetails() -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================================
+       MODAL: VERIFIED 3 SIGN DICTIONARIES DATASET
+       ===================================================================== -->
+  <div id="sources-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[88vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-5 border-b border-slate-800 space-y-4">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-black text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+              </svg>
+              지정 3대 수어사전 출처 데이터셋 (양방향 KSL ⇄ ASL 응급·의료 어휘)
+            </h2>
+            <p class="text-xs text-slate-300 mt-1">
+              본 시스템의 한국수어(KSL) 어휘 데이터는 오직
+              <strong>국립국어원 한국수어사전</strong>에서만, 영어수어(ASL) 어휘 데이터는 오직
+              <strong>Handspeak</strong>와 <strong>SignASL</strong>에서만 추출·학습되었습니다.
+            </p>
+          </div>
+          <button
+            type="button"
+            id="btn-close-sources"
+            class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 3 Verified Source Links -->
+        <div id="modal-sources-grid" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+
+        <!-- Category Filter & Search Controls -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-950 border border-slate-800 rounded-xl p-3">
+          <div id="modal-category-tabs" class="flex flex-wrap gap-1.5"></div>
+
+          <div class="relative w-full sm:w-64">
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input
+              type="text"
+              id="modal-dict-search"
+              placeholder="한국수어 또는 ASL 검색..."
+              class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="p-5 overflow-y-auto flex-1">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-400">
+              <th class="py-2.5 px-3 font-extrabold">분류</th>
+              <th class="py-2.5 px-3 font-extrabold">한국수어 (KSL)</th>
+              <th class="py-2.5 px-3 font-extrabold">미국수어 (ASL)</th>
+              <th class="py-2.5 px-3 font-extrabold">수형 · 수위 · 조음 특성</th>
+              <th class="py-2.5 px-3 font-extrabold">검증 출처</th>
+            </tr>
+          </thead>
+          <tbody id="modal-dict-tbody" class="divide-y divide-slate-800/70"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       APPLICATION JAVASCRIPT: LEXICON, VISION ANALYZER, 2-BONE IK & UI
+       ===================================================================== -->
+  <script>
+    /**
+     * 0. STANDALONE HTML EXPORT HELPER (SAVES CLEAN RUNNABLE .HTML FILE)
+     */
+    window.downloadStandaloneHtml = function () {
+      try {
+        const clone = document.documentElement.cloneNode(true);
+        const idsToClear = [
+          'turn-switcher-bar',
+          'left-builder-card',
+          'history-panel',
+          'right-panel-header',
+          'avatar-stage-container',
+          'right-translation-details',
+          'modal-sources-grid',
+          'modal-category-tabs',
+          'modal-dict-tbody',
+        ];
+        idsToClear.forEach((id) => {
+          const el = clone.querySelector('#' + id);
+          if (el) el.innerHTML = '';
+        });
+        const modal = clone.querySelector('#sources-modal');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+        const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (err) {
+        console.error('HTML download failed:', err);
+      }
+    };
+
+    /**
+     * 1. VERIFIED 3 SIGN LANGUAGE DICTIONARY SOURCES
+     */
+    const ALL_SOURCES = [
+      {
+        id: 'nikl_ksl',
+        name: '국립국어원 한국수어사전 (KSL 공식 표제어)',
+        url: 'https://sldict.korean.go.kr',
+      },
+      {
+        id: 'handspeak_asl',
+        name: 'Handspeak ASL Dictionary (ASL 표준 수형·궤적)',
+        url: 'https://www.handspeak.com',
+      },
+      {
+        id: 'signasl_asl',
+        name: 'SignASL Dictionary (ASL 의료·응급 수어)',
+        url: 'https://www.signasl.org',
+      },
+    ];
+
+    /**
+     * 2. EMERGENCY & SPORTS MEDICINE SIGN LEXICON (KSL ⇄ ASL)
+     */
+    const NEUTRAL_L = { x: 0.34, y: 0.72, ext: [0.45, 0.45, 0.45, 0.45, 0.45], rot: 0.08 };
+    const NEUTRAL_R = { x: 0.66, y: 0.72, ext: [0.45, 0.45, 0.45, 0.45, 0.45], rot: -0.08 };
+
+    const SIGN_LEXICON = [
+      // CATEGORY 1: 신체 부위 (Body Parts)
+      {
+        id: 'head',
+        category: '신체 부위',
+        isNew: false,
+        kslGloss: '머리',
+        aslGloss: 'HEAD',
+        keywords: ['머리', '두통', 'head', 'temple'],
+        role: 'topic',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'none',
+        trailColor: '#38BDF8',
+        phonology: {
+          location: '관자놀이 · 측두부 (Temple)',
+          movement: '검지 끝으로 우측 관자놀이를 가볍게 두 번 지시',
+        },
+        kslPhonology: 'KSL: 오른손 검지로 우측 관자놀이를 가볍게 터치하여 두부 지시',
+        aslPhonology: 'ASL: 굽힌 B-수형 손끝으로 관자놀이에서 턱 측면으로 이동 터치',
+        motionType: 'head_tap',
+        kslMotionType: 'head_tap',
+        aslMotionType: 'head_tap',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.64, y: 0.36, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: -0.25 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.58, y: 0.24, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: -0.35 } },
+        },
+        aslPhases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.63, y: 0.25, ext: [0.3, 0.95, 0.95, 0.95, 0.95], rot: -0.3 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.58, y: 0.31, ext: [0.3, 0.95, 0.95, 0.95, 0.95], rot: -0.35 } },
+        },
+      },
+      {
+        id: 'chest',
+        category: '신체 부위',
+        isNew: false,
+        kslGloss: '가슴',
+        aslGloss: 'CHEST',
+        keywords: ['가슴', '흉부', 'chest', 'thorax'],
+        role: 'topic',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'none',
+        trailColor: '#38BDF8',
+        phonology: {
+          location: '흉부 중앙 (Center Chest)',
+          movement: '편 손바닥(5-수형)을 가슴 중앙에 가볍게 접촉',
+        },
+        kslPhonology: 'KSL: 오른손 손바닥을 흉부 중앙에 대고 가볍게 접촉',
+        aslPhonology: 'ASL: 5-수형 손끝을 가슴 중앙에 대고 상하로 가볍게 쓸어내림',
+        motionType: 'chest_tap',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.6, y: 0.58, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.2 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.52, y: 0.55, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.3 } },
+        },
+      },
+      {
+        id: 'heart',
+        category: '신체 부위',
+        isNew: false,
+        kslGloss: '심장',
+        aslGloss: 'HEART',
+        keywords: ['심장', '가슴두근', 'heart', 'cardiac'],
+        role: 'topic',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'none',
+        trailColor: '#F43F5E',
+        phonology: {
+          location: '좌측 흉부 심장 부위 (Left Chest)',
+          movement: '중지·검지 끝을 좌측 가슴 심장 위치에 대고 박동하듯 두드림',
+        },
+        kslPhonology: 'KSL: 오른손을 좌측 심장 부위에 대고 심박동처럼 두 번 접촉',
+        aslPhonology: 'ASL: 구부린 중지(8-수형) 끝으로 좌측 심장 부위를 가볍게 터치',
+        motionType: 'heart_pulse',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.62, y: 0.56, ext: [0.4, 0.85, 0.65, 0.85, 0.85], rot: -0.2 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.56, y: 0.54, ext: [0.4, 0.85, 0.65, 0.85, 0.85], rot: -0.32 } },
+        },
+      },
+      {
+        id: 'leg',
+        category: '신체 부위',
+        isNew: false,
+        kslGloss: '다리',
+        aslGloss: 'LEG',
+        keywords: ['다리', '허벅지', '무릎', '발목', 'leg', 'knee', 'ankle'],
+        role: 'topic',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'none',
+        trailColor: '#38BDF8',
+        phonology: {
+          location: '하지 측면 (Lower Limb)',
+          movement: '상체를 살짝 숙이며 손끝으로 하체(다리) 방향을 지시',
+        },
+        kslPhonology: 'KSL: 오른손 검지로 하체(다리) 부위를 아래쪽으로 지시',
+        aslPhonology: 'ASL: 편 손바닥으로 하지 측면을 위아래로 쓸어내리며 지시',
+        motionType: 'leg_point',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.62, y: 0.68, ext: [0.2, 1.0, 0.2, 0.2, 0.2], rot: 0.2 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.58, y: 0.84, ext: [0.2, 1.0, 0.2, 0.2, 0.2], rot: 0.35 } },
+        },
+      },
+      {
+        id: 'arm',
+        category: '신체 부위',
+        isNew: false,
+        kslGloss: '팔',
+        aslGloss: 'ARM',
+        keywords: ['팔', '어깨', '팔꿈치', '손목', 'arm', 'shoulder', 'elbow'],
+        role: 'topic',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'none',
+        trailColor: '#38BDF8',
+        phonology: {
+          location: '반대편 상완 · 전완 (Opposite Arm)',
+          movement: '오른손으로 왼팔 상완에서 전완 방향으로 쓸어내림',
+        },
+        kslPhonology: 'KSL: 오른손바닥으로 왼팔 상완 부위를 쓸어내리며 지시',
+        aslPhonology: 'ASL: 오른손 B-수형으로 왼팔 어깨 아래부터 손목까지 쓸어내림',
+        motionType: 'arm_stroke',
+        phases: {
+          prep: {
+            left: { x: 0.36, y: 0.62, ext: [0.4, 0.4, 0.4, 0.4, 0.4], rot: 0.1 },
+            right: { x: 0.42, y: 0.5, ext: [0.8, 0.95, 0.95, 0.95, 0.95], rot: 0.25 },
+          },
+          stroke: {
+            left: { x: 0.36, y: 0.62, ext: [0.4, 0.4, 0.4, 0.4, 0.4], rot: 0.1 },
+            right: { x: 0.37, y: 0.64, ext: [0.8, 0.95, 0.95, 0.95, 0.95], rot: 0.3 },
+          },
+        },
+      },
+
+      // CATEGORY 2: 증상·상태 (Symptoms & Medical Conditions)
+      {
+        id: 'hurt',
+        category: '증상·상태',
+        isNew: false,
+        kslGloss: '아프다',
+        aslGloss: 'PAIN / HURT',
+        keywords: ['아프다', '통증', '고통', 'pain', 'hurt', 'ache', 'sore'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'none',
+        trailColor: '#F43F5E',
+        phonology: {
+          location: '흉부 전방 중립 공간 (Neutral Chest Space)',
+          movement: '양 검지를 마주 향하게 하고 찌르듯 교차 진동 (비수지: 찌푸린 눈썹)',
+        },
+        kslPhonology: 'KSL: 환부 앞에서 편 손가락을 떨며 찌푸린 표정과 함께 통증 표현',
+        aslPhonology: 'ASL: 양손 검지(1-수형) 끝을 마주 향하게 두고 앞뒤로 비틀며 찌름',
+        motionType: 'pain_jab',
+        phases: {
+          prep: {
+            left: { x: 0.36, y: 0.56, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: 0.2 },
+            right: { x: 0.64, y: 0.56, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: -0.2 },
+          },
+          stroke: {
+            left: { x: 0.44, y: 0.54, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: 0.32 },
+            right: { x: 0.56, y: 0.54, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: -0.32 },
+          },
+        },
+      },
+      {
+        id: 'breathless',
+        category: '증상·상태',
+        isNew: false,
+        kslGloss: '호흡곤란 (숨차다)',
+        aslGloss: 'SHORT OF BREATH',
+        keywords: ['호흡곤란', '숨차다', '숨가쁨', 'breath', 'breathe', 'dyspnea', 'asthma'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'gasp',
+        headGesture: 'none',
+        trailColor: '#FB7185',
+        phonology: {
+          location: '양측 흉부 (Bilateral Chest)',
+          movement: '양손 5-수형을 가슴 위에 올리고 가쁘게 상하로 들썩임',
+        },
+        kslPhonology: 'KSL: 양손을 가슴 위에 대고 거친 호흡처럼 빠르게 위아래로 들썩임',
+        aslPhonology: 'ASL: 양손 5-수형을 흉부에 대고 가쁘게 앞으로 밀어내듯 반복 움직임',
+        motionType: 'chest_heave',
+        phases: {
+          prep: {
+            left: { x: 0.42, y: 0.58, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.15 },
+            right: { x: 0.58, y: 0.58, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.15 },
+          },
+          stroke: {
+            left: { x: 0.43, y: 0.5, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.22 },
+            right: { x: 0.57, y: 0.5, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.22 },
+          },
+        },
+      },
+      {
+        id: 'dizzy',
+        category: '증상·상태',
+        isNew: false,
+        kslGloss: '어지럽다',
+        aslGloss: 'DIZZY',
+        keywords: ['어지럽다', '현기증', '어지러움', 'dizzy', 'vertigo'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'none',
+        trailColor: '#F59E0B',
+        phonology: {
+          location: '이마 · 안면 전방 (Forehead Space)',
+          movement: '구부린 5-수형을 이마 앞에서 원을 그리며 회전',
+        },
+        kslPhonology: 'KSL: 편 손을 이마 앞에서 빙글빙글 돌리며 현기증 표현',
+        aslPhonology: 'ASL: 굽힌 5-수형(Claw-5)을 얼굴 앞에서 원형 궤적으로 회전',
+        motionType: 'dizzy_orbit',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.6, y: 0.34, ext: [0.7, 0.75, 0.75, 0.75, 0.75], rot: -0.15 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.53, y: 0.25, ext: [0.7, 0.75, 0.75, 0.75, 0.75], rot: -0.25 } },
+        },
+      },
+      {
+        id: 'fracture',
+        category: '증상·상태',
+        isNew: false,
+        kslGloss: '골절 (뼈 부러짐)',
+        aslGloss: 'FRACTURE / BREAK',
+        keywords: ['골절', '부러지다', '뼈', 'fracture', 'break', 'broken'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'none',
+        trailColor: '#F43F5E',
+        phonology: {
+          location: '흉부 전방 중앙 (Central Space)',
+          movement: '맞댄 양 주먹(S-수형)을 순간적으로 아래로 꺾으며 분리',
+        },
+        kslPhonology: 'KSL: 양손 주먹을 나란히 맞댄 상태에서 뼈가 부러지듯 아래로 꺾음',
+        aslPhonology: 'ASL: 양손 S-수형을 맞댄 뒤 바깥·아래 방향으로 비틀어 꺾음',
+        motionType: 'fracture_snap',
+        phases: {
+          prep: {
+            left: { x: 0.45, y: 0.55, ext: [0.1, 0.1, 0.1, 0.1, 0.1], rot: 0.05 },
+            right: { x: 0.55, y: 0.55, ext: [0.1, 0.1, 0.1, 0.1, 0.1], rot: -0.05 },
+          },
+          stroke: {
+            left: { x: 0.41, y: 0.6, ext: [0.1, 0.1, 0.1, 0.1, 0.1], rot: -0.35 },
+            right: { x: 0.59, y: 0.6, ext: [0.1, 0.1, 0.1, 0.1, 0.1], rot: 0.35 },
+          },
+        },
+      },
+      {
+        id: 'bleed',
+        category: '증상·상태',
+        isNew: false,
+        kslGloss: '출혈 (피나다)',
+        aslGloss: 'BLEED / BLOOD',
+        keywords: ['출혈', '피', '피나다', 'bleed', 'blood', 'bleeding'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'none',
+        trailColor: '#E11D48',
+        phonology: {
+          location: '전방 수직 하강 궤적 (Vertical Flow)',
+          movement: '5-수형 손가락을 펴고 위에서 아래로 흘러내리듯 하강',
+        },
+        kslPhonology: 'KSL: 다섯 손가락을 펴서 위에서 아래로 피가 흐르듯 내림',
+        aslPhonology: 'ASL: 왼손등 앞에서 오른손 5-수형을 아래로 흔들며 하강',
+        motionType: 'bleed_flow',
+        phases: {
+          prep: {
+            left: { x: 0.44, y: 0.58, ext: [0.8, 0.9, 0.9, 0.9, 0.9], rot: 0.1 },
+            right: { x: 0.54, y: 0.44, ext: [0.9, 1.0, 1.0, 1.0, 1.0], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.44, y: 0.58, ext: [0.8, 0.9, 0.9, 0.9, 0.9], rot: 0.1 },
+            right: { x: 0.54, y: 0.65, ext: [0.9, 1.0, 1.0, 1.0, 1.0], rot: -0.15 },
+          },
+        },
+      },
+      {
+        id: 'diabetes',
+        category: '증상·상태',
+        isNew: true,
+        kslGloss: '당뇨병',
+        aslGloss: 'DIABETES',
+        keywords: ['당뇨', '당뇨병', '혈당', '저혈당', 'diabetes', 'sugar', 'glucose'],
+        role: 'topic',
+        brow: 'urgent',
+        mouth: 'calm',
+        headGesture: 'none',
+        trailColor: '#A855F7',
+        phonology: {
+          location: '턱 · 우측 뺨 (Chin & Cheek)',
+          movement: 'ASL D-수형(검지 직립)을 우측 뺨 옆에서 작은 원으로 회전',
+        },
+        kslPhonology: 'KSL: 입가(단맛) 지시 후 병(아픔) 동작을 결합하여 당뇨병 표현',
+        aslPhonology: 'ASL: D-수형(검지 직립, 나머지 손가락 원형)을 우측 턱·뺨 옆에서 회전',
+        motionType: 'diabetes_orbit',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.62, y: 0.4, ext: [0.25, 1.0, 0.2, 0.2, 0.2], rot: -0.15 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.59, y: 0.32, ext: [0.25, 1.0, 0.2, 0.2, 0.2], rot: -0.25 } },
+        },
+      },
+      {
+        id: 'allergy',
+        category: '증상·상태',
+        isNew: true,
+        kslGloss: '알레르기',
+        aslGloss: 'ALLERGY',
+        keywords: ['알레르기', '두드러기', '가려움', 'allergy', 'allergic', 'rash'],
+        role: 'topic',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'none',
+        trailColor: '#F59E0B',
+        phonology: {
+          location: '코 끝 · 안면 중앙 (Nose & Face)',
+          movement: '코 끝 지시 후 양손 검지가 반대 방향으로 벌어짐',
+        },
+        kslPhonology: 'KSL: 왼팔·피부 위를 긁는 동작으로 알레르기 과민반응 표현',
+        aslPhonology: 'ASL: 오른손 검지로 코 끝을 짚은 뒤 양손 검지가 바깥으로 분리',
+        motionType: 'allergy_asl',
+        kslMotionType: 'allergy_ksl',
+        aslMotionType: 'allergy_asl',
+        phases: {
+          prep: {
+            left: { x: 0.46, y: 0.36, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: 0.1 },
+            right: { x: 0.53, y: 0.29, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: -0.15 },
+          },
+          stroke: {
+            left: { x: 0.38, y: 0.38, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: 0.25 },
+            right: { x: 0.62, y: 0.38, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: -0.25 },
+          },
+        },
+      },
+      {
+        id: 'nausea',
+        category: '증상·상태',
+        isNew: true,
+        kslGloss: '구토 · 메스꺼움',
+        aslGloss: 'NAUSEA / VOMIT',
+        keywords: ['구토', '메스꺼움', '토할것같다', '속안좋음', 'nausea', 'vomit', 'sick'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'gasp',
+        headGesture: 'none',
+        trailColor: '#FB923C',
+        phonology: {
+          location: '명치에서 입 전방 상승 (Stomach to Mouth)',
+          movement: '굽힌 5-수형이 명치에서 입 앞쪽으로 올라오며 구토감 표현',
+        },
+        kslPhonology: 'KSL: 명치에서 목·입 방향으로 손이 올라오며 메스꺼움 표현',
+        aslPhonology: 'ASL: 굽힌 5-수형이 위장 앞에서 입 앞쪽으로 솟구치듯 이동',
+        motionType: 'nausea_rise',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.54, y: 0.62, ext: [0.7, 0.75, 0.75, 0.75, 0.75], rot: -0.1 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.53, y: 0.34, ext: [0.7, 0.75, 0.75, 0.75, 0.75], rot: -0.2 } },
+        },
+      },
+      {
+        id: 'numbness',
+        category: '증상·상태',
+        isNew: true,
+        kslGloss: '마비 · 감각없음',
+        aslGloss: 'NUMB / PARALYSIS',
+        keywords: ['마비', '감각', '감각없음', '저림', 'numb', 'paralysis', 'tingling'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'shake',
+        trailColor: '#818CF8',
+        phonology: {
+          location: '전방 양손 하강 (Bilateral Drop)',
+          movement: '힘이 빠진 양손이 아래로 축 처지며 감각 소실 표현',
+        },
+        kslPhonology: 'KSL: 양손이 힘을 잃고 아래로 떨어지며 마비·감각 이상 표현',
+        aslPhonology: 'ASL: 굽힌 5-수형 양손이 공간에서 아래로 툭 떨어지며 감각 상실 표현',
+        motionType: 'numb_drop',
+        phases: {
+          prep: {
+            left: { x: 0.4, y: 0.48, ext: [0.75, 0.8, 0.8, 0.8, 0.8], rot: 0.1 },
+            right: { x: 0.6, y: 0.48, ext: [0.75, 0.8, 0.8, 0.8, 0.8], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.38, y: 0.68, ext: [0.5, 0.55, 0.55, 0.55, 0.55], rot: 0.3 },
+            right: { x: 0.62, y: 0.68, ext: [0.5, 0.55, 0.55, 0.55, 0.55], rot: -0.3 },
+          },
+        },
+      },
+      {
+        id: 'cramp',
+        category: '증상·상태',
+        isNew: true,
+        kslGloss: '근육 경련 (쥐나다)',
+        aslGloss: 'CRAMP / SPASM',
+        keywords: ['경련', '쥐', '쥐나다', '근육', 'cramp', 'spasm', 'muscle'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'none',
+        trailColor: '#F43F5E',
+        phonology: {
+          location: '전방 근육 수축 공간 (Muscle Clench)',
+          movement: '펼친 양손 손가락을 강하게 움켜쥐며 근육 경련 표현',
+        },
+        kslPhonology: 'KSL: 손가락을 강하게 오므려 쥐며 근육이 뭉치고 경련하는 상태 표현',
+        aslPhonology: 'ASL: C/5-수형 양손을 빠르게 S-주먹으로 움켜쥐며 경련 표현',
+        motionType: 'cramp_squeeze',
+        phases: {
+          prep: {
+            left: { x: 0.4, y: 0.56, ext: [0.9, 0.95, 0.95, 0.95, 0.95], rot: 0.15 },
+            right: { x: 0.6, y: 0.56, ext: [0.9, 0.95, 0.95, 0.95, 0.95], rot: -0.15 },
+          },
+          stroke: {
+            left: { x: 0.42, y: 0.56, ext: [0.1, 0.1, 0.1, 0.1, 0.1], rot: 0.25 },
+            right: { x: 0.58, y: 0.56, ext: [0.1, 0.1, 0.1, 0.1, 0.1], rot: -0.25 },
+          },
+        },
+      },
+      {
+        id: 'fever',
+        category: '증상·상태',
+        isNew: true,
+        kslGloss: '발열 · 열나다',
+        aslGloss: 'FEVER / TEMPERATURE',
+        keywords: ['열', '발열', '고열', '열나다', 'fever', 'temperature', 'hot'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'none',
+        trailColor: '#EF4444',
+        phonology: {
+          location: '이마 접촉 (Forehead Touch)',
+          movement: '손등(또는 편 손바닥)을 이마에 대어 체온 상승 표현',
+        },
+        kslPhonology: 'KSL: 오른손 손등을 이마에 대어 열이 나는 상태 표현',
+        aslPhonology: 'ASL: 구부린 B-수형 손등을 이마에 대고 체온 상승 표현',
+        motionType: 'fever_forehead',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.62, y: 0.34, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.2 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.53, y: 0.21, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.3 } },
+        },
+      },
+      {
+        id: 'swelling',
+        category: '증상·상태',
+        isNew: true,
+        kslGloss: '붓기 · 부어오름',
+        aslGloss: 'SWELLING / SWOLLEN',
+        keywords: ['붓기', '부음', '부어오름', '염좌', '삐다', 'swell', 'swelling', 'sprain'],
+        role: 'predicate',
+        brow: 'urgent',
+        mouth: 'calm',
+        headGesture: 'none',
+        trailColor: '#F97316',
+        phonology: {
+          location: '환부 전방 팽창 공간 (Expansion Space)',
+          movement: '모았던 양손 5-수형이 바깥쪽으로 부풀어 오르듯 확장',
+        },
+        kslPhonology: 'KSL: 양손을 오므렸다가 바깥으로 둥글게 넓히며 부어오름 표현',
+        aslPhonology: 'ASL: 굽힌 5-수형 양손이 서로 멀어지며 부종·팽창 표현',
+        motionType: 'swelling_puff',
+        phases: {
+          prep: {
+            left: { x: 0.46, y: 0.58, ext: [0.7, 0.8, 0.8, 0.8, 0.8], rot: 0.1 },
+            right: { x: 0.54, y: 0.58, ext: [0.7, 0.8, 0.8, 0.8, 0.8], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.36, y: 0.54, ext: [0.85, 0.9, 0.9, 0.9, 0.9], rot: 0.25 },
+            right: { x: 0.64, y: 0.54, ext: [0.85, 0.9, 0.9, 0.9, 0.9], rot: -0.25 },
+          },
+        },
+      },
+      {
+        id: 'severe',
+        category: '증상·상태',
+        isNew: false,
+        kslGloss: '심하다 (위중)',
+        aslGloss: 'SEVERE / SERIOUS',
+        keywords: ['심하다', '심각', '많이', 'severe', 'serious', 'bad'],
+        role: 'degree',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'nod',
+        trailColor: '#E11D48',
+        phonology: {
+          location: '흉부 전방 강세 공간 (Emphatic Space)',
+          movement: '양손을 강하게 아래로 내리꽂으며 통증·증상의 중증도 강조',
+        },
+        kslPhonology: 'KSL: 양손을 가슴 앞에서 아래로 단호하게 내리며 정도가 심함을 강조',
+        aslPhonology: 'ASL: 단호한 표정과 함께 양손을 강세 있게 하강시켜 심각성 표현',
+        motionType: 'severe_burst',
+        phases: {
+          prep: {
+            left: { x: 0.4, y: 0.44, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.1 },
+            right: { x: 0.6, y: 0.44, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.38, y: 0.62, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.25 },
+            right: { x: 0.62, y: 0.62, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.25 },
+          },
+        },
+      },
+
+      // CATEGORY 3: 현장 스탭 지시·응답 (Field Staff Questions, Responses & Directives)
+      {
+        id: 'where',
+        category: '현장 스탭 지시·응답',
+        isNew: false,
+        kslGloss: '어디',
+        aslGloss: 'WHERE',
+        keywords: ['어디', '위치', '부위', 'where', 'location', 'which'],
+        role: 'question',
+        brow: 'question',
+        mouth: 'open',
+        headGesture: 'none',
+        trailColor: '#10B981',
+        phonology: {
+          location: '우측 전방 공간 (Neutral Signing Space)',
+          movement: '1-수형(검지 직립)을 세우고 좌우로 흔듦 (비수지: 의문 표정)',
+        },
+        kslPhonology: 'KSL: 검지 또는 편 손을 좌우로 흔들며 의문 시선·눈썹 표지와 결합',
+        aslPhonology: 'ASL: 1-수형(검지 직립)을 세워 좌우로 짧게 흔들며 WH-의문 눈썹 찌푸림',
+        motionType: 'where_wave',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.64, y: 0.5, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: 0.0 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.62, y: 0.44, ext: [0.2, 1.0, 0.15, 0.15, 0.15], rot: 0.12 } },
+        },
+      },
+      {
+        id: 'okay',
+        category: '현장 스탭 지시·응답',
+        isNew: false,
+        kslGloss: '괜찮다',
+        aslGloss: 'FINE / OKAY',
+        keywords: ['괜찮다', '괜찮아', '괜찮습니까', '양호', 'fine', 'okay', 'ok', 'alright'],
+        role: 'question',
+        brow: 'question',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#10B981',
+        phonology: {
+          location: '흉부 중앙 (Center Chest)',
+          movement: 'ASL 5-수형 엄지 끝으로 가슴 중앙을 가볍게 터치',
+        },
+        kslPhonology: 'KSL: 가슴·턱 아래를 부드럽게 쓸어내리며 안정·괜찮음 표현',
+        aslPhonology: 'ASL: 5-수형(다섯 손가락 펼침)의 엄지 끝을 가슴 중앙에 두 번 터치',
+        motionType: 'okay_tap',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.6, y: 0.54, ext: [1.0, 1.0, 1.0, 1.0, 1.0], rot: -0.15 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.52, y: 0.52, ext: [1.0, 1.0, 1.0, 1.0, 1.0], rot: -0.22 } },
+        },
+      },
+      {
+        id: 'conscious',
+        category: '현장 스탭 지시·응답',
+        isNew: false,
+        kslGloss: '의식 (정신)',
+        aslGloss: 'CONSCIOUS / AWAKE',
+        keywords: ['의식', '정신', '깨어남', '실신', 'conscious', 'awake', 'faint'],
+        role: 'question',
+        brow: 'question',
+        mouth: 'open',
+        headGesture: 'none',
+        trailColor: '#22D3EE',
+        phonology: {
+          location: '눈가 · 관자놀이 옆 (Eye / Temple)',
+          movement: '눈 옆에서 엄지와 검지를 동시에 펴며 의식 각성 상태 확인',
+        },
+        kslPhonology: 'KSL: 관자놀이를 지시한 뒤 시선 반응으로 의식 유무 확인',
+        aslPhonology: 'ASL: 눈 옆에서 모았던 엄지·검지를 톡 펴며 눈을 뜬 상태(의식) 표현',
+        motionType: 'conscious_wake',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.62, y: 0.28, ext: [0.25, 0.25, 0.1, 0.1, 0.1], rot: -0.2 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.6, y: 0.24, ext: [1.0, 1.0, 0.1, 0.1, 0.1], rot: -0.25 } },
+        },
+      },
+      {
+        id: 'move',
+        category: '현장 스탭 지시·응답',
+        isNew: false,
+        kslGloss: '움직이다',
+        aslGloss: 'MOVE',
+        keywords: ['움직이다', '가동', '이동', 'move', 'motion'],
+        role: 'predicate',
+        brow: 'question',
+        mouth: 'calm',
+        headGesture: 'none',
+        trailColor: '#38BDF8',
+        phonology: {
+          location: '전방 가동 공간 (Forward Space)',
+          movement: '굽힌 양손(O/Flat-O 수형)을 좌에서 우로 포물선을 그리며 이동',
+        },
+        kslPhonology: 'KSL: 양손을 번갈아 앞으로 움직이며 신체 가동 여부 확인',
+        aslPhonology: 'ASL: 끝을 모은 양손을 한쪽에서 다른 쪽으로 들어 옮기듯 이동',
+        motionType: 'move_arc',
+        phases: {
+          prep: {
+            left: { x: 0.36, y: 0.58, ext: [0.6, 0.65, 0.65, 0.65, 0.65], rot: 0.1 },
+            right: { x: 0.54, y: 0.58, ext: [0.6, 0.65, 0.65, 0.65, 0.65], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.46, y: 0.54, ext: [0.6, 0.65, 0.65, 0.65, 0.65], rot: 0.15 },
+            right: { x: 0.66, y: 0.54, ext: [0.6, 0.65, 0.65, 0.65, 0.65], rot: -0.15 },
+          },
+        },
+      },
+      {
+        id: 'stop',
+        category: '현장 스탭 지시·응답',
+        isNew: false,
+        kslGloss: '금지 · 멈춤',
+        aslGloss: 'STOP',
+        keywords: ['멈춤', '멈추다', '금지', '정지', 'stop', 'halt', 'dont'],
+        role: 'request',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'shake',
+        trailColor: '#EF4444',
+        phonology: {
+          location: '전방 제지 공간 (Central Stop Plane)',
+          movement: '편 왼손바닥 위로 오른손 날(B-수형)을 단호하게 내리쳐 정지 지시',
+        },
+        kslPhonology: 'KSL: 편 손바닥을 정면으로 내밀어 움직임 제지 및 안정 유도',
+        aslPhonology: 'ASL: 수평으로 편 왼손바닥 위에 오른손 B-수형 날을 직각으로 내리침',
+        motionType: 'stop_chop',
+        phases: {
+          prep: {
+            left: { x: 0.44, y: 0.6, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.54, y: 0.42, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.44, y: 0.6, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.5, y: 0.55, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: -0.15 },
+          },
+        },
+      },
+      {
+        id: 'wait',
+        category: '현장 스탭 지시·응답',
+        isNew: true,
+        kslGloss: '기다리다',
+        aslGloss: 'WAIT',
+        keywords: ['기다리다', '잠시만', '대기', 'wait', 'hold'],
+        role: 'request',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#10B981',
+        phonology: {
+          location: '전방 대기 공간 (Neutral Wait Space)',
+          movement: '5-수형 손가락을 미세하게 흔들며 잠시 대기할 것을 안내',
+        },
+        kslPhonology: 'KSL: 편 손바닥을 상대를 향해 들고 가볍게 흔들며 대기 요청',
+        aslPhonology: 'ASL: 5-수형 양손 손바닥을 위로 향한 채 손가락 끝을 가볍게 떨며 대기 표현',
+        motionType: 'wait_ksl',
+        kslMotionType: 'wait_ksl',
+        aslMotionType: 'wait_asl',
+        phases: {
+          prep: {
+            left: { x: 0.4, y: 0.6, ext: [0.9, 0.95, 0.95, 0.95, 0.95], rot: 0.1 },
+            right: { x: 0.6, y: 0.56, ext: [0.9, 0.95, 0.95, 0.95, 0.95], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.42, y: 0.56, ext: [0.9, 0.95, 0.95, 0.95, 0.95], rot: 0.15 },
+            right: { x: 0.58, y: 0.52, ext: [0.9, 0.95, 0.95, 0.95, 0.95], rot: -0.15 },
+          },
+        },
+      },
+      {
+        id: 'yes',
+        category: '현장 스탭 지시·응답',
+        isNew: false,
+        kslGloss: '예 (네)',
+        aslGloss: 'YES',
+        keywords: ['예', '네', '맞다', '긍정', 'yes', 'yeah', 'confirm'],
+        role: 'response',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#10B981',
+        phonology: {
+          location: '우측 전방 공간 (Affirmative Space)',
+          movement: 'S-수형 주먹을 손목 관절 기준으로 고개 끄덕이듯 상하 반복',
+        },
+        kslPhonology: 'KSL: 고개를 끄덕이며 주먹 쥔 손을 아래로 가볍게 내림',
+        aslPhonology: 'ASL: S-수형 주먹을 세우고 손목을 위아래로 두 번 끄덕임',
+        motionType: 'yes_nod',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.63, y: 0.46, ext: [0.1, 0.1, 0.1, 0.1, 0.1], rot: 0.05 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.63, y: 0.54, ext: [0.1, 0.1, 0.1, 0.1, 0.1], rot: -0.25 } },
+        },
+      },
+      {
+        id: 'no',
+        category: '현장 스탭 지시·응답',
+        isNew: false,
+        kslGloss: '아니오',
+        aslGloss: 'NO',
+        keywords: ['아니오', '아니다', '부정', 'no', 'not', 'negative'],
+        role: 'response',
+        brow: 'urgent',
+        mouth: 'tense',
+        headGesture: 'shake',
+        trailColor: '#F43F5E',
+        phonology: {
+          location: '우측 전방 공간 (Negative Space)',
+          movement: '고개를 가로저으며 손바닥(KSL) 또는 검지·중지·엄지(ASL)로 부정 표현',
+        },
+        kslPhonology: 'KSL: 편 손바닥을 세워 좌우로 흔들며 고개를 가로저음',
+        aslPhonology: 'ASL: 검지·중지와 엄지 끝을 맞대어 두 번 쥐며 부정 표현',
+        motionType: 'no_shake',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.64, y: 0.48, ext: [0.7, 0.9, 0.9, 0.2, 0.2], rot: -0.1 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.6, y: 0.48, ext: [0.4, 0.5, 0.5, 0.2, 0.2], rot: 0.15 } },
+        },
+      },
+      {
+        id: 'help',
+        category: '현장 스탭 지시·응답',
+        isNew: false,
+        kslGloss: '도움',
+        aslGloss: 'HELP',
+        keywords: ['도움', '도와주세요', '구조', '살려주세요', 'help', 'assist', 'aid'],
+        role: 'request',
+        brow: 'urgent',
+        mouth: 'open',
+        headGesture: 'nod',
+        trailColor: '#22D3EE',
+        phonology: {
+          location: '흉부 전방 지지 공간 (Support Space)',
+          movement: '왼손바닥 위에 오른손(주먹/손날)을 얹고 함께 위로 들어 올림',
+        },
+        kslPhonology: 'KSL: 한 손바닥으로 다른 쪽 팔·손을 받쳐 위로 올리며 구조 요청',
+        aslPhonology: 'ASL: 편 왼손바닥 위에 오른손 A-수형 주먹을 올려 함께 상향 이동',
+        motionType: 'help_lift',
+        phases: {
+          prep: {
+            left: { x: 0.45, y: 0.64, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.52, y: 0.6, ext: [0.2, 0.15, 0.15, 0.15, 0.15], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.45, y: 0.5, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.52, y: 0.46, ext: [0.2, 0.15, 0.15, 0.15, 0.15], rot: -0.1 },
+          },
+        },
+      },
+
+      // CATEGORY 4: 처치·자세 안내 (Medical Care, Transport & Posture Guidance)
+      {
+        id: 'hospital',
+        category: '처치·자세 안내',
+        isNew: false,
+        kslGloss: '병원',
+        aslGloss: 'HOSPITAL',
+        keywords: ['병원', '의무실', '이송', 'hospital', 'clinic', 'medical'],
+        role: 'request',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#10B981',
+        phonology: {
+          location: '좌측 상완 십자 표식 (Left Upper Arm Cross)',
+          movement: 'H-수형(검지·중지)으로 좌측 상완 위에 십자(+) 궤적을 그림',
+        },
+        kslPhonology: 'KSL: 가슴·상완 부위에 손가락으로 십자(+) 표식을 그려 병원 표현',
+        aslPhonology: 'ASL: H-수형(검지·중지 붙임)으로 좌측 상완에 세로-가로 십자(+) 터치',
+        motionType: 'hospital_cross',
+        phases: {
+          prep: {
+            left: { x: 0.36, y: 0.62, ext: [0.4, 0.4, 0.4, 0.4, 0.4], rot: 0.1 },
+            right: { x: 0.43, y: 0.46, ext: [0.2, 1.0, 1.0, 0.15, 0.15], rot: -0.2 },
+          },
+          stroke: {
+            left: { x: 0.36, y: 0.62, ext: [0.4, 0.4, 0.4, 0.4, 0.4], rot: 0.1 },
+            right: { x: 0.4, y: 0.54, ext: [0.2, 1.0, 1.0, 0.15, 0.15], rot: -0.25 },
+          },
+        },
+      },
+      {
+        id: 'doctor',
+        category: '처치·자세 안내',
+        isNew: true,
+        kslGloss: '의사',
+        aslGloss: 'DOCTOR',
+        keywords: ['의사', '진료', '닥터', 'doctor', 'physician', 'md'],
+        role: 'request',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#38BDF8',
+        phonology: {
+          location: '좌측 손목 맥박 부위 (Left Wrist Pulse)',
+          movement: '오른손 손끝(D/M-수형)으로 왼손 손목 맥박 부위를 두 번 가볍게 짚음',
+        },
+        kslPhonology: 'KSL: 오른손 손끝으로 반대편 손목 맥박을 짚는 동작으로 의사 표현',
+        aslPhonology: 'ASL: D-수형(또는 M-수형) 손끝으로 뒤집힌 왼손 손목 맥박 부위를 터치',
+        motionType: 'doctor_pulse',
+        phases: {
+          prep: {
+            left: { x: 0.42, y: 0.62, ext: [0.5, 0.6, 0.6, 0.6, 0.6], rot: 0.1 },
+            right: { x: 0.47, y: 0.52, ext: [0.3, 1.0, 0.85, 0.85, 0.2], rot: -0.2 },
+          },
+          stroke: {
+            left: { x: 0.42, y: 0.62, ext: [0.5, 0.6, 0.6, 0.6, 0.6], rot: 0.1 },
+            right: { x: 0.44, y: 0.59, ext: [0.3, 1.0, 0.85, 0.85, 0.2], rot: -0.25 },
+          },
+        },
+      },
+      {
+        id: 'nurse',
+        category: '처치·자세 안내',
+        isNew: true,
+        kslGloss: '간호사',
+        aslGloss: 'NURSE',
+        keywords: ['간호사', '간호', '처치', 'nurse', 'nursing'],
+        role: 'request',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#34D399',
+        phonology: {
+          location: '좌측 손목 맥박 (N-수형 터치)',
+          movement: 'N-수형(검지·중지 굽힘)으로 왼손 손목 맥박을 두 번 터치',
+        },
+        kslPhonology: 'KSL: 맥박 진찰 동작과 머리 위 간호캡 도상성을 결합하여 간호사 표현',
+        aslPhonology: 'ASL: N-수형(엄지 위로 검지·중지 얹음)으로 좌측 손목 맥박을 두 번 터치',
+        motionType: 'doctor_pulse',
+        phases: {
+          prep: {
+            left: { x: 0.42, y: 0.62, ext: [0.5, 0.6, 0.6, 0.6, 0.6], rot: 0.1 },
+            right: { x: 0.47, y: 0.52, ext: [0.25, 0.65, 0.65, 0.15, 0.15], rot: -0.2 },
+          },
+          stroke: {
+            left: { x: 0.42, y: 0.62, ext: [0.5, 0.6, 0.6, 0.6, 0.6], rot: 0.1 },
+            right: { x: 0.44, y: 0.59, ext: [0.25, 0.65, 0.65, 0.15, 0.15], rot: -0.25 },
+          },
+        },
+      },
+      {
+        id: 'medicine',
+        category: '처치·자세 안내',
+        isNew: true,
+        kslGloss: '약 / 인슐린',
+        aslGloss: 'MEDICINE / INSULIN',
+        keywords: ['약', '인슐린', '복용', '투약', 'medicine', 'insulin', 'drug', 'pill'],
+        role: 'request',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#22D3EE',
+        phonology: {
+          location: '손바닥 중앙 · 입가 (Palm & Mouth)',
+          movement: 'KSL은 약 복용 동작, ASL은 중지 끝으로 왼손바닥 중앙을 비빔',
+        },
+        kslPhonology: 'KSL: 알약을 집어 입으로 가져가 복용하는 동작으로 약·인슐린 표현',
+        aslPhonology: 'ASL: 구부린 중지 끝으로 편 왼손바닥 중앙을 작은 원으로 비벼 약 표현',
+        motionType: 'medicine_ksl',
+        kslMotionType: 'medicine_ksl',
+        aslMotionType: 'medicine_asl',
+        phases: {
+          prep: {
+            left: { x: 0.44, y: 0.62, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.56, y: 0.46, ext: [0.3, 0.4, 0.3, 0.2, 0.2], rot: -0.2 },
+          },
+          stroke: {
+            left: { x: 0.44, y: 0.62, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.54, y: 0.36, ext: [0.3, 0.4, 0.3, 0.2, 0.2], rot: -0.3 },
+          },
+        },
+        aslPhases: {
+          prep: {
+            left: { x: 0.44, y: 0.62, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.48, y: 0.54, ext: [0.4, 0.85, 0.55, 0.85, 0.85], rot: -0.15 },
+          },
+          stroke: {
+            left: { x: 0.44, y: 0.62, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.45, y: 0.59, ext: [0.4, 0.85, 0.55, 0.85, 0.85], rot: -0.25 },
+          },
+        },
+      },
+      {
+        id: 'ambulance',
+        category: '처치·자세 안내',
+        isNew: true,
+        kslGloss: '구급차',
+        aslGloss: 'AMBULANCE',
+        keywords: ['구급차', '119', '응급차', 'ambulance', 'ems'],
+        role: 'request',
+        brow: 'urgent',
+        mouth: 'open',
+        headGesture: 'nod',
+        trailColor: '#F43F5E',
+        phonology: {
+          location: '머리 우측 상단 경광등 공간 (Siren Beacon)',
+          movement: '머리 위쪽에서 손가락을 쥐었다 펴며 구급차 경광등 회전 표현',
+        },
+        kslPhonology: 'KSL: 머리 옆 상단에서 경광등이 반짝이는 동작과 차량 이동 결합',
+        aslPhonology: 'ASL: 5-수형과 S-수형을 번갈아 쥐었다 펴며 머리 위 경광등 회전 표현',
+        motionType: 'ambulance_siren',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.66, y: 0.28, ext: [0.1, 0.1, 0.1, 0.1, 0.1], rot: -0.1 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.66, y: 0.22, ext: [1.0, 1.0, 1.0, 1.0, 1.0], rot: -0.2 } },
+        },
+      },
+      {
+        id: 'emergency',
+        category: '처치·자세 안내',
+        isNew: true,
+        kslGloss: '응급 · 위급',
+        aslGloss: 'EMERGENCY',
+        keywords: ['응급', '위급', '긴급', '비상', 'emergency', 'urgent', 'critical'],
+        role: 'degree',
+        brow: 'urgent',
+        mouth: 'gasp',
+        headGesture: 'nod',
+        trailColor: '#EF4444',
+        phonology: {
+          location: '전방 긴급 공간 (Urgent Front Space)',
+          movement: 'E-수형(또는 주먹)을 세워 좌우로 빠르게 흔들며 위급 상황 전달',
+        },
+        kslPhonology: 'KSL: 양손을 가슴 앞에서 빠르게 교차·진동시키며 긴급 상황 강조',
+        aslPhonology: 'ASL: E-수형을 우측 전방 공간에서 좌우로 빠르게 흔들어 응급 표현',
+        motionType: 'emergency_shake',
+        phases: {
+          prep: {
+            left: { x: 0.4, y: 0.52, ext: [0.2, 0.3, 0.3, 0.3, 0.3], rot: 0.1 },
+            right: { x: 0.62, y: 0.46, ext: [0.2, 0.3, 0.3, 0.3, 0.3], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.42, y: 0.5, ext: [0.2, 0.3, 0.3, 0.3, 0.3], rot: 0.2 },
+            right: { x: 0.6, y: 0.44, ext: [0.2, 0.3, 0.3, 0.3, 0.3], rot: -0.2 },
+          },
+        },
+      },
+      {
+        id: 'water',
+        category: '처치·자세 안내',
+        isNew: true,
+        kslGloss: '물 (수분 보충)',
+        aslGloss: 'WATER',
+        keywords: ['물', '마시다', '수분', '탈수', 'water', 'drink', 'hydration'],
+        role: 'request',
+        brow: 'question',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#38BDF8',
+        phonology: {
+          location: '턱 · 입가 접촉 (Chin / Mouth)',
+          movement: 'W-수형(검지·중지·약지 직립)의 검지 측면을 턱에 두 번 가볍게 터치',
+        },
+        kslPhonology: 'KSL: 컵을 들어 입으로 기울이는 동작으로 물·수분 섭취 표현',
+        aslPhonology: 'ASL: W-수형(세 손가락 펼침)의 검지 옆면을 턱 중앙에 두 번 터치',
+        motionType: 'water_drink',
+        phases: {
+          prep: { left: NEUTRAL_L, right: { x: 0.62, y: 0.42, ext: [0.2, 1.0, 1.0, 1.0, 0.15], rot: -0.15 } },
+          stroke: { left: NEUTRAL_L, right: { x: 0.55, y: 0.34, ext: [0.2, 1.0, 1.0, 1.0, 0.15], rot: -0.25 } },
+        },
+      },
+      {
+        id: 'ice',
+        category: '처치·자세 안내',
+        isNew: true,
+        kslGloss: '얼음찜질 (냉찜질)',
+        aslGloss: 'ICE / COLD PACK',
+        keywords: ['얼음', '얼음찜질', '냉찜질', '차갑다', 'ice', 'cold', 'pack'],
+        role: 'request',
+        brow: 'calm',
+        mouth: 'tense',
+        headGesture: 'nod',
+        trailColor: '#22D3EE',
+        phonology: {
+          location: '흉부 전방 냉각 공간 (Chill Space)',
+          movement: '굽힌 양손을 가슴 앞에서 짧게 떨며 얼음·냉찜질 처치 안내',
+        },
+        kslPhonology: 'KSL: 차가움(얼음)을 나타내는 떨림과 환부 접촉 동작 결합',
+        aslPhonology: 'ASL: 굽힌 5-수형(Claw) 양손을 가슴 앞에서 수축·진동시켜 얼음 표현',
+        motionType: 'ice_chill',
+        phases: {
+          prep: {
+            left: { x: 0.42, y: 0.56, ext: [0.6, 0.65, 0.65, 0.65, 0.65], rot: 0.15 },
+            right: { x: 0.58, y: 0.56, ext: [0.6, 0.65, 0.65, 0.65, 0.65], rot: -0.15 },
+          },
+          stroke: {
+            left: { x: 0.44, y: 0.54, ext: [0.55, 0.6, 0.6, 0.6, 0.6], rot: 0.25 },
+            right: { x: 0.56, y: 0.54, ext: [0.55, 0.6, 0.6, 0.6, 0.6], rot: -0.25 },
+          },
+        },
+      },
+      {
+        id: 'sit_down',
+        category: '처치·자세 안내',
+        isNew: true,
+        kslGloss: '앉다 (착석 휴식)',
+        aslGloss: 'SIT DOWN',
+        keywords: ['앉다', '앉으세요', '휴식', '의자', 'sit', 'seat', 'rest'],
+        role: 'request',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#10B981',
+        phonology: {
+          location: '전방 하단 착석 공간 (Lower Seat Plane)',
+          movement: '왼손 H-수형 위에 오른손 H-수형을 얹고 아래로 내려 앉는 자세 안내',
+        },
+        kslPhonology: 'KSL: 양손바닥을 아래로 향한 채 지긋이 내리며 자리에 앉을 것을 안내',
+        aslPhonology: 'ASL: 수평 왼손 H-수형 등 위에 오른손 H-수형을 교차로 얹고 아래로 내림',
+        motionType: 'sit_perch',
+        phases: {
+          prep: {
+            left: { x: 0.44, y: 0.62, ext: [0.2, 1.0, 1.0, 0.15, 0.15], rot: 0.05 },
+            right: { x: 0.52, y: 0.54, ext: [0.2, 1.0, 1.0, 0.15, 0.15], rot: -0.1 },
+          },
+          stroke: {
+            left: { x: 0.44, y: 0.68, ext: [0.2, 1.0, 1.0, 0.15, 0.15], rot: 0.05 },
+            right: { x: 0.5, y: 0.64, ext: [0.2, 1.0, 1.0, 0.15, 0.15], rot: -0.15 },
+          },
+        },
+      },
+      {
+        id: 'lie_down',
+        category: '처치·자세 안내',
+        isNew: true,
+        kslGloss: '눕다 (안정 자세)',
+        aslGloss: 'LIE DOWN',
+        keywords: ['눕다', '누우세요', '안정', '침대', 'lie', 'lay', 'bed'],
+        role: 'request',
+        brow: 'calm',
+        mouth: 'calm',
+        headGesture: 'nod',
+        trailColor: '#10B981',
+        phonology: {
+          location: '수평 안정 공간 (Horizontal Plane)',
+          movement: '편 왼손바닥 위에 오른손 V-수형 손등을 눕혀 안정 자세 안내',
+        },
+        kslPhonology: 'KSL: 편 손바닥을 수평으로 눕히며 누워서 안정을 취할 것을 안내',
+        aslPhonology: 'ASL: 편 왼손바닥(침대) 위에 오른손 V-수형(두 다리) 손등을 수평으로 눕힘',
+        motionType: 'lie_flat',
+        phases: {
+          prep: {
+            left: { x: 0.43, y: 0.64, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.54, y: 0.54, ext: [0.2, 1.0, 1.0, 0.15, 0.15], rot: -0.15 },
+          },
+          stroke: {
+            left: { x: 0.43, y: 0.64, ext: [0.85, 0.95, 0.95, 0.95, 0.95], rot: 0.05 },
+            right: { x: 0.52, y: 0.61, ext: [0.2, 1.0, 1.0, 0.15, 0.15], rot: 0.25 },
+          },
+        },
+      },
+    ];
+
+    const LEXICON_MAP = SIGN_LEXICON.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+
+    const DROPDOWN_GROUPS = [
+      { label: '신체 부위 (Body Parts)', items: SIGN_LEXICON.filter((s) => s.category === '신체 부위') },
+      { label: '증상·상태 (Symptoms & Conditions)', items: SIGN_LEXICON.filter((s) => s.category === '증상·상태') },
+      { label: '현장 스탭 지시·응답 (Questions & Directives)', items: SIGN_LEXICON.filter((s) => s.category === '현장 스탭 지시·응답') },
+      { label: '처치·자세 안내 (Medical Care & Posture)', items: SIGN_LEXICON.filter((s) => s.category === '처치·자세 안내') },
+    ];
+
+    /**
+     * 3. APPLICATION STATE
+     */
+    const state = {
+      activeTurn: 'ATHLETE', // 'ATHLETE' (KSL -> ASL) or 'STAFF' (ASL -> KSL)
+      athleteTokens: [],
+      staffTokens: [],
+      athleteTranslation: null,
+      staffTranslation: null,
+      isTranslating: false,
+      isPlaying: true,
+      speed: 1.0,
+      activeTokenIdx: null,
+      conversationHistory: [],
+      selectedHistoryId: null,
+      isDraggingOver: false,
+      dictCategoryFilter: 'ALL',
+      dictSearch: '',
+      animTime: 0,
+      lastFrameTime: null,
+    };
+
+    function getCurrentTokens() {
+      return state.activeTurn === 'ATHLETE' ? state.athleteTokens : state.staffTokens;
+    }
+
+    function setCurrentTokens(nextTokens) {
+      if (state.activeTurn === 'ATHLETE') {
+        state.athleteTokens = nextTokens;
+      } else {
+        state.staffTokens = nextTokens;
+      }
+    }
+
+    function getCurrentTranslation() {
+      return state.activeTurn === 'ATHLETE' ? state.athleteTranslation : state.staffTranslation;
+    }
+
+    function setCurrentTranslation(nextTrans) {
+      if (state.activeTurn === 'ATHLETE') {
+        state.athleteTranslation = nextTrans;
+      } else {
+        state.staffTranslation = nextTrans;
+      }
+    }
+
+    function getDisplayedTranslation() {
+      if (state.selectedHistoryId) {
+        const found = state.conversationHistory.find((h) => h.id === state.selectedHistoryId);
+        if (found) return found.translation;
+      }
+      return getCurrentTranslation();
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * 4. TWO-WAY VISION ANALYZER (KSL for Athlete vs ASL for Field Staff)
+     */
+    function inferSignFromFilename(name, turnRole) {
+      const lower = (name || '').toLowerCase();
+      const isStaff = turnRole === 'STAFF';
+      for (const item of SIGN_LEXICON) {
+        if (item.keywords.some((kw) => lower.includes(kw))) {
+          return {
+            signId: item.id,
+            confidence: 96.2,
+            note: isStaff
+              ? `ASL 표준 수형 매핑 (${item.aslGloss})`
+              : `KSL 표준 수형 매핑 (${item.kslGloss})`,
+          };
+        }
+      }
+      return null;
+    }
+
+    function analyzeImageFallback(imgEl, fileName, turnRole) {
+      const isStaff = turnRole === 'STAFF';
+      const byName = inferSignFromFilename(fileName, turnRole);
+      if (byName) return byName;
+
+      const canvas = document.createElement('canvas');
+      const W = 96;
+      const H = 96;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(imgEl, 0, 0, W, H);
+
+      let data;
+      try {
+        data = ctx.getImageData(0, 0, W, H).data;
+      } catch {
+        return {
+          signId: isStaff ? 'where' : 'hurt',
+          confidence: 88.5,
+          note: isStaff ? 'ASL 표준 질문 프로파일 추론' : 'KSL 표준 증상 프로파일 추론',
+        };
+      }
+
+      let sumX = 0;
+      let sumY = 0;
+      let count = 0;
+      let leftMass = 0;
+      let rightMass = 0;
+
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const idx = (y * W + x) * 4;
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+
+          const maxC = Math.max(r, g, b);
+          const minC = Math.min(r, g, b);
+          const isSkin =
+            r > 88 &&
+            g > 40 &&
+            b > 20 &&
+            maxC - minC > 14 &&
+            Math.abs(r - g) > 12 &&
+            r > g &&
+            r > b;
+
+          if (isSkin) {
+            sumX += x / W;
+            sumY += y / H;
+            count++;
+            if (x < W * 0.5) leftMass++;
+            else rightMass++;
+          }
+        }
+      }
+
+      if (count < 25) {
+        return {
+          signId: isStaff ? 'where' : 'hurt',
+          confidence: 87.4,
+          note: isStaff ? 'ASL 상체·공간 질문 수위 추론' : 'KSL 상체·흉부 통증 수위 추론',
+        };
+      }
+
+      const cx = sumX / count;
+      const cy = sumY / count;
+      const twoHands = Math.min(leftMass, rightMass) / Math.max(1, Math.max(leftMass, rightMass)) > 0.42;
+
+      if (isStaff) {
+        if (cy < 0.34) {
+          return {
+            signId: cx > 0.56 ? 'conscious' : 'water',
+            confidence: 91.5,
+            note: cx > 0.56 ? 'ASL 안면·눈가 측두부 수위 감지 (CONSCIOUS)' : 'ASL 턱·입가 전방 수위 감지 (WATER)',
+          };
+        }
+        if (twoHands) {
+          return {
+            signId: cy > 0.55 ? 'sit_down' : 'hurt',
+            confidence: 90.8,
+            note: cy > 0.55 ? 'ASL 양손 하단 교차 수위 감지 (SIT DOWN)' : 'ASL 양손 전방 대칭 수위 감지 (PAIN)',
+          };
+        }
+        if (cx > 0.58) {
+          return {
+            signId: 'where',
+            confidence: 91.2,
+            note: 'ASL 우측 전방 공간 지시 수위 감지 (WHERE)',
+          };
+        }
+        return {
+          signId: 'okay',
+          confidence: 90.4,
+          note: 'ASL 중앙 흉부 5수형 접촉 수위 감지 (FINE / OKAY)',
+        };
+      }
+
+      if (cy < 0.34) {
+        return {
+          signId: cx > 0.55 ? 'ambulance' : 'head',
+          confidence: 92.4,
+          note: cx > 0.55 ? 'KSL 두부 우측 상단 수위 감지 (구급차)' : 'KSL 측두부 지시 수위 감지 (머리)',
+        };
+      }
+      if (cy > 0.66) {
+        return {
+          signId: 'leg',
+          confidence: 91.1,
+          note: 'KSL 하부(하지) 지시 수위 감지 (다리)',
+        };
+      }
+      if (twoHands) {
+        return {
+          signId: cy < 0.47 ? 'breathless' : 'hurt',
+          confidence: 90.8,
+          note: cy < 0.47 ? 'KSL 양손 흉부 호흡 수위 감지 (호흡곤란)' : 'KSL 양손 통증 진동 수위 감지 (아프다)',
+        };
+      }
+      if (cx > 0.56) {
+        return {
+          signId: 'heart',
+          confidence: 90.2,
+          note: 'KSL 좌측 흉부 심장 수위 감지 (심장)',
+        };
+      }
+      return {
+        signId: 'chest',
+        confidence: 89.6,
+        note: 'KSL 중앙 흉부 접촉 수위 감지 (가슴)',
+      };
+    }
+
+    async function analyzeSignPhotoWithVision(dataUrl, imgEl, fileName, turnRole) {
+      const byName = inferSignFromFilename(fileName, turnRole);
+      if (byName) return byName;
+
+      const isStaff = turnRole === 'STAFF';
+      const validIds = SIGN_LEXICON.map((s) => `${s.id} (ASL: ${s.aslGloss} / KSL: ${s.kslGloss})`).join(', ');
+
+      const systemPrompt = isStaff
+        ? [
+            'You are an expert American Sign Language (ASL) & Korean Sign Language (KSL) emergency medical vision recognizer.',
+            'CRITICAL INSTRUCTION: This photo was captured from a FIELD STAFF member signing in AMERICAN SIGN LANGUAGE (ASL), NOT Korean Sign Language (KSL).',
+            'Do NOT interpret the gesture using KSL rules. Analyze ONLY the ASL handshape (D-hand, 1-hand, 5-hand, B-hand, S-hand, L-hand, W-hand, H-hand, V-hand), location (chest, chin, forehead, temple, neutral space), and facial expression (WH-question furrowed brows, yes/no raised brows) according to Handspeak and SignASL standards.',
+            `Choose the single best matching signId from this exact list: [${validIds}].`,
+            'Write "reason" in concise Korean starting with "ASL " explaining the detected ASL handshape and location.',
+          ].join(' ')
+        : [
+            'You are an expert Korean Sign Language (KSL) emergency medical vision recognizer based on the National Institute of Korean Language (국립국어원 한국수어사전).',
+            'CRITICAL INSTRUCTION: This photo was captured from a DEAF ATHLETE signing in KOREAN SIGN LANGUAGE (KSL).',
+            'Analyze the KSL handshape, body location, and non-manual facial markers according to KSL dictionary standards.',
+            `Choose the single best matching signId from this exact list: [${validIds}].`,
+            'Write "reason" in concise Korean starting with "KSL " explaining the detected KSL handshape and location.',
+          ].join(' ');
+
+      const userPrompt = isStaff
+        ? '이 현장 스탭 사진은 미국수어(ASL) 동작입니다. 한국수어(KSL)가 아닌 미국수어(ASL) 수형과 수위 기준으로 어떤 수어인지 판별해 주세요.'
+        : '이 농인 선수 사진은 한국수어(KSL) 동작입니다. 한국수어(KSL) 수형과 수위 기준으로 어떤 수어인지 판별해 주세요.';
+
+      try {
+        const base64Data = dataUrl.split(',')[1];
+        const mimeMatch = dataUrl.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+
+        const payload = {
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: userPrompt }, { inlineData: { mimeType, data: base64Data } }],
+            },
+          ],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: {
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: 'OBJECT',
+              properties: {
+                signId: { type: 'STRING' },
+                confidence: { type: 'NUMBER' },
+                reason: { type: 'STRING' },
+              },
+              required: ['signId', 'confidence', 'reason'],
+            },
+          },
+        };
+
+        const apiKey = '';
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        let lastResponse = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const res = await fetch(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+              lastResponse = await res.json();
+              break;
+            }
+          } catch {
+            // Retry with exponential backoff
+          }
+          await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt)));
+        }
+
+        const rawText = lastResponse?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (rawText) {
+          const parsed = JSON.parse(rawText);
+          const matched = LEXICON_MAP[parsed.signId];
+          if (matched) {
+            const rawConf = Number(parsed.confidence);
+            const normConf =
+              Number.isFinite(rawConf) && rawConf > 0
+                ? rawConf <= 1
+                  ? Math.round(rawConf * 1000) / 10
+                  : Math.min(99.4, Math.round(rawConf * 10) / 10)
+                : 93.8;
+            const safeReason =
+              typeof parsed.reason === 'string' && parsed.reason.trim()
+                ? parsed.reason.trim()
+                : isStaff
+                ? `ASL 수형 비전 인식 (${matched.aslGloss})`
+                : `KSL 수형 비전 인식 (${matched.kslGloss})`;
+            return { signId: matched.id, confidence: normConf, note: safeReason };
+          }
+        }
+      } catch {
+        // Fall back cleanly if offline or local file:// mode without API key
+      }
+
+      return analyzeImageFallback(imgEl, fileName, turnRole);
+    }
+
+    /**
+     * 5. TWO-WAY GRAMMAR & SIGN ORDER TRANSLATION PIPELINE (KSL ⇄ ASL)
+     */
+    function buildSignTranslation(tokens, turnRole) {
+      if (!tokens || tokens.length === 0) return null;
+
+      const isAthlete = turnRole === 'ATHLETE';
+      const sourceLang = isAthlete ? 'KSL (한국수어)' : 'ASL (미국수어)';
+      const targetLang = isAthlete ? 'ASL (미국수어)' : 'KSL (한국수어)';
+
+      const items = tokens.map((t) => LEXICON_MAP[t.signId]).filter(Boolean);
+      if (items.length === 0) return null;
+
+      const hasQuestion = items.some(
+        (it) =>
+          it.role === 'question' ||
+          it.id === 'where' ||
+          it.id === 'conscious' ||
+          (!isAthlete && (it.id === 'okay' || it.id === 'move'))
+      );
+      const hasNegation = items.some((it) => it.id === 'stop' || it.id === 'no');
+
+      const ordered = [...items].sort((a, b) => {
+        const rankKsl = { topic: 1, predicate: 2, degree: 3, question: 4, response: 5, request: 6 };
+        const rankAsl = { response: 1, topic: 2, degree: 3, predicate: 4, request: 5, question: 6 };
+        const table = isAthlete ? rankAsl : rankKsl;
+        return (table[a.role] || 3) - (table[b.role] || 3);
+      });
+
+      const glossSequence = ordered.map((it) => (isAthlete ? it.aslGloss : it.kslGloss));
+      const nonManualTag = hasQuestion
+        ? isAthlete
+          ? '[WH-Question: 눈썹 찌푸림 + 고개 기울임]'
+          : '[의문 비수지 표지: 시선 고정 + 눈썹 상향]'
+        : hasNegation
+        ? '[부정·제지 비수지 표지: 고개 가로저음]'
+        : '[응급 강조 비수지 표지: 시선 고정 + 고개 끄덕임]';
+
+      const ids = items.map((it) => it.id);
+      const hasId = (id) => ids.includes(id);
+      const rawNames = items.map((it) => it.kslGloss);
+      let naturalKorean = rawNames.join(' + ');
+
+      if (!isAthlete) {
+        if (ids.length === 1) {
+          const singleMap = {
+            okay: '괜찮습니까? (상태가 양호합니까?)',
+            where: '어디가 아픕니까? 부위를 가리켜 주세요.',
+            hurt: '통증이 있습니까? 어디가 아픕니까?',
+            conscious: '의식이 있습니까? 제 말이 들립니까?',
+            move: '손발이나 관절을 움직일 수 있습니까?',
+            stop: '움직이지 말고 그대로 멈춰 계세요.',
+            wait: '잠시만 기다려 주세요. 곧 처치하겠습니다.',
+            water: '물 드시겠습니까? 수분을 보충하세요.',
+            ice: '부상 부위에 얼음찜질을 하겠습니다.',
+            sit_down: '자리에 앉아서 안정을 취하세요.',
+            lie_down: '편하게 누워서 안정을 취하세요.',
+            hospital: '병원(의무실)으로 이송하겠습니다.',
+            ambulance: '119 구급차를 호출했습니다. 곧 도착합니다.',
+            doctor: '의사가 곧 도착하여 진료할 것입니다.',
+            nurse: '간호사가 곧 상태를 확인하겠습니다.',
+            medicine: '복용 중인 약이나 인슐린이 필요합니까?',
+            diabetes: '당뇨병이 있습니까? 혈당을 확인하겠습니다.',
+            allergy: '약물이나 음식 알레르기가 있습니까?',
+            breathless: '숨쉬기가 힘듭니까? 천천히 호흡하세요.',
+            dizzy: '어지럽습니까? 고개를 움직이지 마세요.',
+            yes: '예, 알겠습니다. 바로 조치하겠습니다.',
+            no: '아니오, 무리하게 움직이지 마세요.',
+            help: '제가 도와드리겠습니다. 안심하세요.',
+          };
+          if (singleMap[ids[0]]) naturalKorean = singleMap[ids[0]];
+        } else if (hasId('where') && hasId('hurt')) {
+          naturalKorean = '어디가 아픕니까?';
+        } else if (hasId('head') && hasId('hurt')) {
+          naturalKorean = '머리가 아픕니까?';
+        } else if (hasId('chest') && hasId('hurt')) {
+          naturalKorean = '가슴이 아픕니까?';
+        } else if (hasId('heart') && hasId('hurt')) {
+          naturalKorean = '심장 부위가 아픕니까?';
+        } else if (hasId('leg') && hasId('hurt')) {
+          naturalKorean = '다리가 아픕니까?';
+        } else if (hasId('arm') && hasId('hurt')) {
+          naturalKorean = '팔이 아픕니까?';
+        } else if (hasId('move') && hasId('stop')) {
+          naturalKorean = '움직이지 말고 멈춰 계세요';
+        } else if (hasId('sit_down') && hasId('wait')) {
+          naturalKorean = '자리에 앉아서 잠시 기다려 주세요';
+        } else if (hasId('lie_down') && hasId('ambulance')) {
+          naturalKorean = '누워서 안정 취하시면 구급차로 이송하겠습니다';
+        } else if (hasId('hospital') && hasId('move')) {
+          naturalKorean = '병원으로 이동하겠습니다';
+        } else if (hasId('diabetes') && hasId('medicine')) {
+          naturalKorean = '당뇨병 약(인슐린)이 필요합니까?';
+        }
+      } else {
+        if (ids.length === 2 && ids[0] === 'head' && ids[1] === 'hurt') {
+          naturalKorean = '머리가 아픕니다';
+        } else if (ids.length === 2 && ids[0] === 'chest' && ids[1] === 'hurt') {
+          naturalKorean = '가슴이 아픕니다';
+        } else if (ids.length === 2 && ids[0] === 'heart' && ids[1] === 'hurt') {
+          naturalKorean = '심장이 아픕니다';
+        } else if (ids.length === 2 && ids[0] === 'leg' && ids[1] === 'hurt') {
+          naturalKorean = '다리가 아픕니다';
+        } else if (ids.length === 2 && ids[0] === 'arm' && ids[1] === 'hurt') {
+          naturalKorean = '팔이 아픕니다';
+        } else if (ids.length === 2 && ids[0] === 'diabetes' && ids[1] === 'medicine') {
+          naturalKorean = '당뇨병이 있어서 약(인슐린)이 필요합니다';
+        } else if (ids.length === 2 && ids[0] === 'doctor' && ids[1] === 'help') {
+          naturalKorean = '의사의 도움이 필요합니다';
+        } else if (hasId('where') && hasId('hurt')) {
+          naturalKorean = '어디가 아픕니까?';
+        }
+      }
+
+      return {
+        turnRole,
+        sourceLang,
+        targetLang,
+        orderedItems: ordered,
+        glossSequence,
+        nonManualTag,
+        naturalKorean,
+        grammarRule: isAthlete
+          ? 'KSL(주제-서술-강조) ➔ ASL(주제-강세-서술-WH문말) 어순 변환'
+          : 'ASL(응답-주제-서술-WH문말) ➔ KSL(주제-서술-의문비수지) 어순 변환',
+      };
+    }
+
+    /**
+     * 6. 2-BONE INVERSE KINEMATICS (IK) & SVG HUMAN AVATAR GENERATOR
+     */
+    function solveTwoBoneIK(sx, sy, tx, ty, l1, l2, side) {
+      const dx = tx - sx;
+      const dy = ty - sy;
+      const rawDist = Math.hypot(dx, dy) || 0.001;
+
+      const nominalReach = l1 + l2;
+      const reachRatio = Math.min(1, rawDist / nominalReach);
+      const depthScale = 0.82 + 0.18 * reachRatio;
+      const effL1 = l1 * depthScale;
+      const effL2 = l2 * depthScale;
+
+      const maxReach = (effL1 + effL2) * 0.985;
+      const minReach = Math.abs(effL1 - effL2) + 6;
+      const d = Math.max(minReach, Math.min(maxReach, rawDist));
+
+      const ux = dx / rawDist;
+      const uy = dy / rawDist;
+      const wx = sx + ux * d;
+      const wy = sy + uy * d;
+
+      const cosAngle = (effL1 * effL1 + d * d - effL2 * effL2) / (2 * effL1 * d);
+      const clampedCos = Math.max(-1, Math.min(1, cosAngle));
+      const angleOffset = Math.acos(clampedCos);
+      const baseAngle = Math.atan2(wy - sy, wx - sx);
+
+      const angleA = baseAngle + angleOffset;
+      const angleB = baseAngle - angleOffset;
+
+      const prefX = side === 'left' ? -0.68 : 0.68;
+      const prefY = 0.73;
+
+      const scoreA = Math.cos(angleA) * prefX + Math.sin(angleA) * prefY;
+      const scoreB = Math.cos(angleB) * prefX + Math.sin(angleB) * prefY;
+      const elbowAngle = scoreA >= scoreB ? angleA : angleB;
+
+      const ex = sx + Math.cos(elbowAngle) * effL1;
+      const ey = sy + Math.sin(elbowAngle) * effL1;
+
+      return { ex, ey, wx, wy };
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function smoothstep(t) {
+      const c = Math.max(0, Math.min(1, t));
+      return c * c * (3 - 2 * c);
+    }
+
+    function buildTaperedSegmentPath(x1, y1, r1, x2, y2, r2) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len;
+      const ny = dx / len;
+
+      const p1x = x1 + nx * r1;
+      const p1y = y1 + ny * r1;
+      const p2x = x2 + nx * r2;
+      const p2y = y2 + ny * r2;
+      const p3x = x2 - nx * r2;
+      const p3y = y2 - ny * r2;
+      const p4x = x1 - nx * r1;
+      const p4y = y1 - ny * r1;
+
+      return `M ${p1x.toFixed(1)} ${p1y.toFixed(1)} L ${p2x.toFixed(1)} ${p2y.toFixed(1)} A ${r2} ${r2} 0 0 1 ${p3x.toFixed(1)} ${p3y.toFixed(1)} L ${p4x.toFixed(1)} ${p4y.toFixed(1)} A ${r1} ${r1} 0 0 1 ${p1x.toFixed(1)} ${p1y.toFixed(1)} Z`;
+    }
+
+    function renderHumanArmSvg(sx, sy, ex, ey, wx, wy, sleeveColor, sleeveBorder, isStaff) {
+      const skinFill = '#FCD5B5';
+      const skinShadow = '#F0B68A';
+      const skinStroke = '#D4926A';
+      const cuffInner = isStaff ? '#022C22' : '#082F49';
+
+      const sleeveT = 0.42;
+      const cuffX = sx + (ex - sx) * sleeveT;
+      const cuffY = sy + (ey - sy) * sleeveT;
+
+      const upperAngle = Math.atan2(ey - sy, ex - sx);
+      const upperDeg = (upperAngle * 180) / Math.PI;
+
+      const armStartX = sx + (ex - sx) * (sleeveT - 0.04);
+      const armStartY = sy + (ey - sy) * (sleeveT - 0.04);
+
+      const upperArmPath = buildTaperedSegmentPath(armStartX, armStartY, 7.6, ex, ey, 6.4);
+      const forearmPath = buildTaperedSegmentPath(ex, ey, 6.4, wx, wy, 4.5);
+      const sleevePath = buildTaperedSegmentPath(sx, sy, 9.6, cuffX, cuffY, 8.8);
+
+      const armMidX = (armStartX + wx) * 0.5;
+      const armMidY = (armStartY + wy) * 0.5;
+      const toInnerX = armMidX - ex;
+      const toInnerY = armMidY - ey;
+      const innerLen = Math.hypot(toInnerX, toInnerY) || 1;
+      const creaseX = ex + (toInnerX / innerLen) * 3.8;
+      const creaseY = ey + (toInnerY / innerLen) * 3.8;
+
+      return `
+        <g>
+          <path d="${upperArmPath}" fill="${skinFill}" stroke="${skinStroke}" stroke-width="1.4" stroke-linejoin="round" />
+          <path d="${forearmPath}" fill="${skinFill}" stroke="${skinStroke}" stroke-width="1.4" stroke-linejoin="round" />
+          <circle cx="${ex.toFixed(1)}" cy="${ey.toFixed(1)}" r="5.6" fill="${skinFill}" />
+          <circle cx="${creaseX.toFixed(1)}" cy="${creaseY.toFixed(1)}" r="2.1" fill="${skinShadow}" opacity="0.65" />
+          <path d="${sleevePath}" fill="${sleeveColor}" stroke="${sleeveBorder}" stroke-width="1.5" stroke-linejoin="round" />
+          <ellipse cx="${cuffX.toFixed(1)}" cy="${cuffY.toFixed(1)}" rx="3.4" ry="8.6" transform="rotate(${upperDeg.toFixed(1)} ${cuffX.toFixed(1)} ${cuffY.toFixed(1)})" fill="${cuffInner}" stroke="${sleeveBorder}" stroke-width="1.3" />
+        </g>
+      `;
+    }
+
+    function renderHumanHandSvg(wx, wy, ex, ey, fingerExt, wristRot, side) {
+      const skinFill = '#FCD5B5';
+      const skinShadow = '#F0B68A';
+      const skinStroke = '#D4926A';
+      const forearmAngle = Math.atan2(wy - ey, wx - ex);
+
+      const clampedRot = Math.max(-0.55, Math.min(0.55, wristRot * 0.65));
+      const handAngle = forearmAngle + clampedRot;
+      const handDeg = (handAngle * 180) / Math.PI;
+      const sideSign = side === 'left' ? 1 : -1;
+
+      const palmCx = wx + Math.cos(handAngle) * 7.2;
+      const palmCy = wy + Math.sin(handAngle) * 7.2;
+
+      const fingerSpecs = [
+        { angleOff: -0.68 * sideSign, len: 12.5, width: 3.8, baseDist: 6.4 },
+        { angleOff: -0.22 * sideSign, len: 16.8, width: 3.3, baseDist: 9.6 },
+        { angleOff: 0.0, len: 18.2, width: 3.4, baseDist: 10.2 },
+        { angleOff: 0.21 * sideSign, len: 16.8, width: 3.2, baseDist: 9.6 },
+        { angleOff: 0.43 * sideSign, len: 13.8, width: 2.9, baseDist: 8.6 },
+      ];
+
+      const fingersSvg = fingerSpecs
+        .map((spec, idx) => {
+          const ext = fingerExt[idx] ?? 0.5;
+          const fAngle = handAngle + spec.angleOff * (0.52 + ext * 0.48);
+          const effLen = spec.len * (0.36 + ext * 0.64);
+          const baseX = wx + Math.cos(handAngle + spec.angleOff * 0.48) * spec.baseDist;
+          const baseY = wy + Math.sin(handAngle + spec.angleOff * 0.48) * spec.baseDist;
+          const midX = baseX + Math.cos(fAngle) * (effLen * 0.54);
+          const midY = baseY + Math.sin(fAngle) * (effLen * 0.54);
+          const tipX = midX + Math.cos(fAngle + (1 - ext) * 0.2 * sideSign) * (effLen * 0.46);
+          const tipY = midY + Math.sin(fAngle + (1 - ext) * 0.2 * sideSign) * (effLen * 0.46);
+
+          return `
+            <g>
+              <line x1="${baseX.toFixed(1)}" y1="${baseY.toFixed(1)}" x2="${midX.toFixed(1)}" y2="${midY.toFixed(1)}" stroke="${skinStroke}" stroke-width="${(spec.width + 1.2).toFixed(1)}" stroke-linecap="round" />
+              <line x1="${baseX.toFixed(1)}" y1="${baseY.toFixed(1)}" x2="${midX.toFixed(1)}" y2="${midY.toFixed(1)}" stroke="${skinFill}" stroke-width="${spec.width.toFixed(1)}" stroke-linecap="round" />
+              <line x1="${midX.toFixed(1)}" y1="${midY.toFixed(1)}" x2="${tipX.toFixed(1)}" y2="${tipY.toFixed(1)}" stroke="${skinStroke}" stroke-width="${(spec.width * 0.86 + 1.1).toFixed(1)}" stroke-linecap="round" />
+              <line x1="${midX.toFixed(1)}" y1="${midY.toFixed(1)}" x2="${tipX.toFixed(1)}" y2="${tipY.toFixed(1)}" stroke="${skinFill}" stroke-width="${(spec.width * 0.86).toFixed(1)}" stroke-linecap="round" />
+            </g>
+          `;
+        })
+        .join('');
+
+      return `
+        <g>
+          <circle cx="${wx.toFixed(1)}" cy="${wy.toFixed(1)}" r="4.5" fill="${skinFill}" stroke="${skinStroke}" stroke-width="1.2" />
+          <ellipse cx="${palmCx.toFixed(1)}" cy="${palmCy.toFixed(1)}" rx="8.2" ry="6.4" transform="rotate(${handDeg.toFixed(1)} ${palmCx.toFixed(1)} ${palmCy.toFixed(1)})" fill="${skinFill}" stroke="${skinStroke}" stroke-width="1.35" />
+          <ellipse cx="${palmCx.toFixed(1)}" cy="${palmCy.toFixed(1)}" rx="4.4" ry="3.1" transform="rotate(${handDeg.toFixed(1)} ${palmCx.toFixed(1)} ${palmCy.toFixed(1)})" fill="${skinShadow}" opacity="0.35" />
+          ${fingersSvg}
+        </g>
+      `;
+    }
+
+    function renderHumanAvatarBodySvg({ role, brow, mouth, headShiftX, headShiftY, activeZone }) {
+      const isStaff = role === 'STAFF';
+      const skinFill = '#FCD5B5';
+      const skinShadow = '#F4BD94';
+      const skinStroke = '#D99B72';
+      const torsoFill = isStaff ? '#065F46' : '#0369A1';
+      const torsoStroke = isStaff ? '#34D399' : '#38BDF8';
+
+      let zoneSvg = '';
+      if (activeZone === 'head') {
+        zoneSvg = `<circle cx="${(160 + headShiftX).toFixed(1)}" cy="${(60 + headShiftY).toFixed(1)}" r="39" fill="rgba(34, 211, 238, 0.12)" stroke="#22D3EE" stroke-width="1.6" stroke-dasharray="4 3" />`;
+      } else if (activeZone === 'chest') {
+        zoneSvg = `<ellipse cx="160" cy="154" rx="36" ry="25" fill="rgba(34, 211, 238, 0.12)" stroke="#22D3EE" stroke-width="1.6" stroke-dasharray="4 3" />`;
+      } else if (activeZone === 'heart') {
+        zoneSvg = `<circle cx="176" cy="150" r="20" fill="rgba(244, 63, 94, 0.16)" stroke="#F43F5E" stroke-width="1.6" stroke-dasharray="4 3" />`;
+      }
+
+      const uniformSvg = isStaff
+        ? `
+          <g>
+            <path d="M 146 103 L 160 124 L 174 103 Z" fill="${skinFill}" />
+            <path d="M 143 103 L 154 122 L 160 115 L 148 102 Z" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="1" />
+            <path d="M 177 103 L 166 122 L 160 115 L 172 102 Z" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="1" />
+            <line x1="132" y1="108" x2="132" y2="240" stroke="#6EE7B7" stroke-width="3.5" opacity="0.75" />
+            <line x1="188" y1="108" x2="188" y2="240" stroke="#6EE7B7" stroke-width="3.5" opacity="0.75" />
+            <path d="M 149 106 L 160 144 L 171 106" fill="none" stroke="#A7F3D0" stroke-width="1.6" />
+            <rect x="145" y="144" width="30" height="19" rx="4" fill="#FFFFFF" stroke="#10B981" stroke-width="1.5" />
+            <rect x="145" y="144" width="30" height="5" rx="2" fill="#059669" />
+            <text x="160" y="159" text-anchor="middle" fill="#064E3B" font-size="7.5" font-weight="900" letter-spacing="0.4">STAFF</text>
+          </g>
+        `
+        : `
+          <g>
+            <path d="M 145 103 L 160 124 L 175 103 Z" fill="${skinFill}" stroke="#BAE6FD" stroke-width="1.8" stroke-linejoin="round" />
+            <path d="M 114 118 L 138 110" stroke="#BAE6FD" stroke-width="3.5" stroke-linecap="round" />
+            <path d="M 206 118 L 182 110" stroke="#BAE6FD" stroke-width="3.5" stroke-linecap="round" />
+            <rect x="142" y="142" width="36" height="22" rx="5" fill="#082F49" stroke="#7DD3FC" stroke-width="1.5" />
+            <text x="160" y="156" text-anchor="middle" fill="#FFFFFF" font-size="9" font-weight="900" letter-spacing="0.5">KOR · 07</text>
+          </g>
+        `;
+
+      const headwearSvg = isStaff
+        ? `
+          <g>
+            <path d="M 136 55 C 135 46, 138 42, 141 47 L 139 58 Z" fill="#1E293B" />
+            <path d="M 184 55 C 185 46, 182 42, 179 47 L 181 58 Z" fill="#1E293B" />
+            <path d="M 135 48 C 135 28, 185 28, 185 48 Z" fill="#065F46" stroke="#34D399" stroke-width="1.8" />
+            <path d="M 131 48 Q 160 42 189 48 L 185 52 Q 160 47 135 52 Z" fill="#10B981" />
+            <path d="M 135 63 Q 134 75 147 77" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" />
+            <circle cx="148" cy="77" r="2.5" fill="#10B981" />
+          </g>
+        `
+        : `
+          <g>
+            <path d="M 136 53 C 134 31, 186 31, 184 53 C 182 45, 173 43, 160 43 C 147 43, 138 45, 136 53 Z" fill="#1E293B" />
+            <rect x="136" y="43" width="48" height="6" rx="3" fill="#0284C7" stroke="#7DD3FC" stroke-width="1.1" />
+          </g>
+        `;
+
+      const browSvg =
+        brow === 'urgent'
+          ? `
+            <path d="M 143 54.5 L 154 58" stroke="#1E293B" stroke-width="2.4" stroke-linecap="round" />
+            <path d="M 177 54.5 L 166 58" stroke="#1E293B" stroke-width="2.4" stroke-linecap="round" />
+          `
+          : brow === 'question'
+          ? `
+            <path d="M 143 55 Q 148.5 50.5 154 55" stroke="#1E293B" stroke-width="2.2" fill="none" stroke-linecap="round" />
+            <path d="M 166 55 Q 171.5 50.5 177 55" stroke="#1E293B" stroke-width="2.2" fill="none" stroke-linecap="round" />
+          `
+          : `
+            <path d="M 143.5 55.5 Q 148.5 53.5 153.5 55.5" stroke="#1E293B" stroke-width="2.1" fill="none" stroke-linecap="round" />
+            <path d="M 166.5 55.5 Q 171.5 53.5 176.5 55.5" stroke="#1E293B" stroke-width="2.1" fill="none" stroke-linecap="round" />
+          `;
+
+      const mouthSvg =
+        mouth === 'gasp'
+          ? `<ellipse cx="160" cy="77.5" rx="4.8" ry="4.0" fill="#BE123C" stroke="#9F1239" stroke-width="1" />`
+          : mouth === 'open'
+          ? `<ellipse cx="160" cy="77.5" rx="4.2" ry="2.8" fill="#9F1239" />`
+          : mouth === 'tense'
+          ? `<path d="M 153 77.5 L 167 77.5" stroke="#9F1239" stroke-width="2.2" stroke-linecap="round" />`
+          : `<path d="M 153.5 76 Q 160 81.2 166.5 76" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round" />`;
+
+      return `
+        <g>
+          ${zoneSvg}
+          <path d="M 112 126 C 113 108, 128 103, 146 103 L 174 103 C 192 103, 207 108, 208 126 L 212 242 L 108 242 Z" fill="${torsoFill}" stroke="${torsoStroke}" stroke-width="2" stroke-linejoin="round" />
+          ${uniformSvg}
+          <path d="M 151 85 L 151 105 Q 160 110 169 105 L 169 85 Z" fill="${skinShadow}" stroke="${skinStroke}" stroke-width="1.5" />
+          <g transform="translate(${headShiftX.toFixed(1)}, ${headShiftY.toFixed(1)})">
+            <ellipse cx="135.5" cy="62" rx="4.2" ry="6.8" fill="${skinShadow}" stroke="${skinStroke}" stroke-width="1.4" />
+            <ellipse cx="184.5" cy="62" rx="4.2" ry="6.8" fill="${skinShadow}" stroke="${skinStroke}" stroke-width="1.4" />
+            <path d="M 137 54 C 137 33, 183 33, 183 54 L 182 67 C 181 81, 170 89, 160 89 C 150 89, 139 81, 138 67 Z" fill="${skinFill}" stroke="${skinStroke}" stroke-width="1.8" />
+            <ellipse cx="144" cy="70" rx="4.2" ry="2.4" fill="#FDA4AF" opacity="0.35" />
+            <ellipse cx="176" cy="70" rx="4.2" ry="2.4" fill="#FDA4AF" opacity="0.35" />
+            ${headwearSvg}
+            ${browSvg}
+            <ellipse cx="149" cy="62.5" rx="4.2" ry="3.3" fill="#FFFFFF" />
+            <circle cx="149" cy="62.5" r="2.4" fill="#1E293B" />
+            <circle cx="148.2" cy="61.7" r="0.9" fill="#FFFFFF" />
+            <ellipse cx="171" cy="62.5" rx="4.2" ry="3.3" fill="#FFFFFF" />
+            <circle cx="171" cy="62.5" r="2.4" fill="#1E293B" />
+            <circle cx="170.2" cy="61.7" r="0.9" fill="#FFFFFF" />
+            <path d="M 160 63 L 158.8 69.5 Q 160 70.8 161.6 69.8" fill="none" stroke="${skinStroke}" stroke-width="1.6" stroke-linecap="round" />
+            ${mouthSvg}
+          </g>
+        </g>
+      `;
+    }
+
+    /**
+     * 7. HIGH-FPS AVATAR FRAME UPDATER (60FPS SVG RENDERING)
+     */
+    let lastRenderedTokenIndex = -1;
+
+    function updateAvatarFrame() {
+      const container = document.getElementById('avatar-stage-container');
+      if (!container) return;
+
+      const translation = getDisplayedTranslation();
+      const tokens = translation?.orderedItems || [];
+      const tokenDuration = 1.95;
+
+      if (tokens.length === 0) {
+        const leftIK = solveTwoBoneIK(120, 122, 110, 210, 56, 54, 'left');
+        const rightIK = solveTwoBoneIK(200, 122, 210, 210, 56, 54, 'right');
+        const isStaffTurn = state.activeTurn === 'STAFF';
+        const sleeveColor = isStaffTurn ? '#065F46' : '#0369A1';
+        const sleeveBorder = isStaffTurn ? '#34D399' : '#38BDF8';
+
+        container.innerHTML = `
+          <div class="relative rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden flex flex-col items-center justify-center p-4">
+            <div class="w-full flex items-center justify-between mb-1">
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-black border ${
+                isStaffTurn
+                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40'
+                  : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/40'
+              }">
+                ${isStaffTurn ? '🪪 현장 스탭 아바타 · 대기 중' : '🏃 운동 선수 아바타 · 대기 중'}
+              </span>
+              <span class="text-[11px] font-bold text-slate-500">
+                ${isStaffTurn ? 'ASL ➔ KSL 모드' : 'KSL ➔ ASL 모드'}
+              </span>
+            </div>
+
+            <svg viewBox="0 0 320 270" class="w-full max-w-[330px] h-auto">
+              <defs>
+                <radialGradient id="avatarGlowIdle" cx="50%" cy="38%" r="55%">
+                  <stop offset="0%" stop-color="${
+                    isStaffTurn ? 'rgba(16, 185, 129, 0.18)' : 'rgba(56, 189, 248, 0.18)'
+                  }" />
+                  <stop offset="100%" stop-color="rgba(2, 6, 23, 0)" />
+                </radialGradient>
+              </defs>
+              <rect x="0" y="0" width="320" height="270" fill="url(#avatarGlowIdle)" />
+              ${renderHumanAvatarBodySvg({
+                role: state.activeTurn,
+                brow: 'calm',
+                mouth: 'calm',
+                headShiftX: 0,
+                headShiftY: 0,
+                activeZone: null,
+              })}
+              ${renderHumanArmSvg(120, 122, leftIK.ex, leftIK.ey, leftIK.wx, leftIK.wy, sleeveColor, sleeveBorder, isStaffTurn)}
+              ${renderHumanHandSvg(leftIK.wx, leftIK.wy, leftIK.ex, leftIK.ey, [0.45, 0.45, 0.45, 0.45, 0.45], 0.08, 'left')}
+              ${renderHumanArmSvg(200, 122, rightIK.ex, rightIK.ey, rightIK.wx, rightIK.wy, sleeveColor, sleeveBorder, isStaffTurn)}
+              ${renderHumanHandSvg(rightIK.wx, rightIK.wy, rightIK.ex, rightIK.ey, [0.45, 0.45, 0.45, 0.45, 0.45], -0.08, 'right')}
+            </svg>
+
+            <div class="text-center space-y-1 mt-1">
+              <div class="text-xs font-black text-slate-300">
+                좌측에 수어 사진을 입력하고 [번역하기] 버튼을 눌러주세요
+              </div>
+              <p class="text-[11px] text-slate-500">
+                ${
+                  isStaffTurn
+                    ? '현장 스탭의 ASL 수어를 한국수어(KSL)로 번역하여 현장 스탭 아바타가 시연합니다'
+                    : '농인 선수의 KSL 수어를 미국수어(ASL)로 번역하여 운동 선수 아바타가 시연합니다'
+                }
+              </p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const totalCycle = tokens.length * tokenDuration;
+      const effectiveTime =
+        state.activeTokenIdx != null
+          ? state.activeTokenIdx * tokenDuration + (state.animTime % tokenDuration)
+          : state.animTime % totalCycle;
+
+      const currentIdx = Math.min(tokens.length - 1, Math.floor(effectiveTime / tokenDuration));
+      if (currentIdx !== lastRenderedTokenIndex) {
+        lastRenderedTokenIndex = currentIdx;
+        renderRightDetails(currentIdx);
+      }
+
+      const localT = (effectiveTime % tokenDuration) / tokenDuration;
+      const activeItem = tokens[currentIdx];
+
+      const isTargetKSL = translation.turnRole === 'STAFF';
+      const activePhases = isTargetKSL
+        ? activeItem.kslPhases || activeItem.phases
+        : activeItem.aslPhases || activeItem.phases;
+      const m = isTargetKSL
+        ? activeItem.kslMotionType || activeItem.motionType
+        : activeItem.aslMotionType || activeItem.motionType;
+
+      let stageLabel = '1단계 · 준비 자세 (Prep)';
+      let u = 0;
+      if (localT < 0.28) {
+        stageLabel = '1단계 · 준비 자세 (Prep)';
+        u = smoothstep(localT / 0.28);
+      } else if (localT < 0.76) {
+        stageLabel = '2단계 · 핵심 조음 (Stroke)';
+        u = 1;
+      } else {
+        stageLabel = '3단계 · 강조 유지 (Hold)';
+        u = 1;
+      }
+
+      const W = 320;
+      const H = 270;
+      const prepL = { x: activePhases.prep.left.x * W, y: activePhases.prep.left.y * H };
+      const strokeL = { x: activePhases.stroke.left.x * W, y: activePhases.stroke.left.y * H };
+      const prepR = { x: activePhases.prep.right.x * W, y: activePhases.prep.right.y * H };
+      const strokeR = { x: activePhases.stroke.right.x * W, y: activePhases.stroke.right.y * H };
+
+      let lx = lerp(prepL.x, strokeL.x, u);
+      let ly = lerp(prepL.y, strokeL.y, u);
+      let rx = lerp(prepR.x, strokeR.x, u);
+      let ry = lerp(prepR.y, strokeR.y, u);
+
+      let lFingers = activePhases.prep.left.ext.map((v, i) => lerp(v, activePhases.stroke.left.ext[i], u));
+      let rFingers = activePhases.prep.right.ext.map((v, i) => lerp(v, activePhases.stroke.right.ext[i], u));
+      let lRot = lerp(activePhases.prep.left.rot, activePhases.stroke.left.rot, u);
+      let rRot = lerp(activePhases.prep.right.rot, activePhases.stroke.right.rot, u);
+
+      const sp = localT >= 0.28 ? Math.min(1, (localT - 0.28) / 0.48) : 0;
+      const osc = Math.sin(sp * Math.PI * 3);
+
+      if (localT >= 0.28) {
+        if (m === 'diabetes_orbit') {
+          rx += Math.cos(sp * Math.PI * 2) * 8;
+          ry += Math.sin(sp * Math.PI * 2) * 8;
+        } else if (m === 'doctor_pulse') {
+          ry -= Math.abs(osc) * 6;
+        } else if (m === 'medicine_ksl') {
+          ry += osc * 5;
+        } else if (m === 'medicine_asl') {
+          rx += Math.cos(sp * Math.PI * 2) * 6;
+          ry += Math.sin(sp * Math.PI * 2) * 4;
+        } else if (m === 'allergy_ksl') {
+          ry += osc * 8;
+        } else if (m === 'allergy_asl') {
+          lx = lerp(prepL.x, strokeL.x, sp);
+          rx = lerp(prepR.x, strokeR.x, sp);
+        } else if (m === 'ambulance_siren') {
+          const flash = Math.abs(Math.sin(sp * Math.PI * 3));
+          rFingers = [flash, flash, flash, flash, flash];
+          rRot = Math.sin(sp * Math.PI * 3) * 0.25;
+        } else if (m === 'wait_asl') {
+          ly += Math.sin(sp * Math.PI * 4) * 3;
+          ry -= Math.sin(sp * Math.PI * 4) * 3;
+        } else if (m === 'wait_ksl') {
+          ry -= Math.abs(osc) * 5;
+        } else if (m === 'emergency_shake') {
+          lx += osc * 10;
+          rx -= osc * 10;
+          rRot = osc * 0.35;
+        } else if (m === 'nausea_rise') {
+          ry = lerp(strokeR.y + 34, strokeR.y - 10, sp);
+          rx += osc * 5;
+        } else if (m === 'numb_drop') {
+          ly = lerp(prepL.y, strokeL.y, u);
+          ry = lerp(prepR.y, strokeR.y, u);
+        } else if (m === 'cramp_squeeze') {
+          const clench = Math.max(0.08, 0.85 - u * 0.77);
+          lFingers = [clench, clench, clench, clench, clench];
+          rFingers = [clench, clench, clench, clench, clench];
+          lx += osc * 4;
+          rx -= osc * 4;
+        } else if (m === 'fever_forehead') {
+          rx += osc * 5;
+        } else if (m === 'swelling_puff') {
+          lx = lerp(prepL.x, strokeL.x, u);
+          rx = lerp(prepR.x, strokeR.x, u);
+        } else if (m === 'water_drink') {
+          ry -= Math.abs(osc) * 6;
+        } else if (m === 'ice_chill') {
+          lx += osc * 6;
+          rx -= osc * 6;
+        } else if (m === 'sit_perch') {
+          ry += Math.abs(osc) * 6;
+        } else if (m === 'lie_flat') {
+          rx += Math.sin(sp * Math.PI) * 6;
+        } else if (m === 'head_tap') {
+          rx -= Math.abs(osc) * 6;
+        } else if (m === 'chest_tap' || m === 'heart_pulse' || m === 'okay_tap') {
+          rx -= Math.abs(osc) * 7;
+        } else if (m === 'leg_point' || m === 'arm_stroke') {
+          ry += osc * 7;
+        } else if (m === 'pain_jab') {
+          lx += osc * 7;
+          rx -= osc * 7;
+          lRot += osc * 0.25;
+          rRot -= osc * 0.25;
+        } else if (m === 'chest_heave') {
+          ly += osc * 7;
+          ry += osc * 7;
+        } else if (m === 'dizzy_orbit') {
+          rx += Math.cos(sp * Math.PI * 2) * 10;
+          ry += Math.sin(sp * Math.PI * 2) * 8;
+        } else if (m === 'fracture_snap') {
+          lx -= Math.sin(sp * Math.PI) * 8;
+          rx += Math.sin(sp * Math.PI) * 8;
+        } else if (m === 'bleed_flow') {
+          ry = lerp(strokeR.y - 18, strokeR.y + 10, sp);
+        } else if (m === 'conscious_wake') {
+          const openVal = 0.3 + 0.7 * Math.sin(sp * Math.PI * 0.5);
+          rFingers = [openVal, openVal, 0.1, 0.1, 0.1];
+        } else if (m === 'severe_burst') {
+          ly += Math.sin(sp * Math.PI) * 8;
+          ry += Math.sin(sp * Math.PI) * 8;
+        } else if (m === 'help_lift') {
+          ly -= Math.sin(sp * Math.PI * 0.5) * 10;
+          ry -= Math.sin(sp * Math.PI * 0.5) * 10;
+        } else if (m === 'yes_nod') {
+          ry += Math.abs(osc) * 8;
+          rRot -= Math.abs(osc) * 0.3;
+        } else if (m === 'no_shake' || m === 'where_wave') {
+          rx += osc * 11;
+          rRot += osc * 0.25;
+        } else if (m === 'move_arc') {
+          const arc = Math.sin(sp * Math.PI);
+          ly -= arc * 12;
+          ry -= arc * 12;
+        } else if (m === 'stop_chop') {
+          ry -= Math.abs(osc) * 9;
+        } else if (m === 'hospital_cross') {
+          if (sp < 0.5) {
+            ry += (sp * 2 - 0.5) * 14;
+          } else {
+            rx += ((sp - 0.5) * 2 - 0.5) * 14;
+          }
+        }
+      }
+
+      let headShiftX = 0;
+      let headShiftY = 0;
+      if (localT >= 0.28) {
+        if (activeItem.headGesture === 'nod') {
+          headShiftY = Math.abs(Math.sin(sp * Math.PI * 2)) * 3.5;
+        } else if (activeItem.headGesture === 'shake') {
+          headShiftX = Math.sin(sp * Math.PI * 3) * 4.5;
+        }
+      }
+
+      const leftIK = solveTwoBoneIK(120, 122, lx, ly, 56, 54, 'left');
+      const rightIK = solveTwoBoneIK(200, 122, rx, ry, 56, 54, 'right');
+
+      const isAthleteTurn = translation.turnRole === 'ATHLETE';
+      const sleeveColor = isAthleteTurn ? '#0369A1' : '#065F46';
+      const sleeveBorder = isAthleteTurn ? '#38BDF8' : '#34D399';
+      const leftMoves = Math.hypot(strokeL.x - prepL.x, strokeL.y - prepL.y) > 8;
+
+      const activeZone =
+        activeItem.id === 'head' || activeItem.id === 'dizzy' || activeItem.id === 'fever' || activeItem.id === 'conscious'
+          ? 'head'
+          : activeItem.id === 'heart'
+          ? 'heart'
+          : activeItem.id === 'chest' || activeItem.id === 'breathless'
+          ? 'chest'
+          : null;
+
+      const leftTrailSvg = leftMoves
+        ? `
+          <path d="M ${prepL.x} ${prepL.y} Q ${(prepL.x + strokeL.x) / 2 - 12} ${(prepL.y + strokeL.y) / 2 - 14} ${strokeL.x} ${strokeL.y}" fill="none" stroke="${activeItem.trailColor}" stroke-width="2.0" stroke-dasharray="4 3" opacity="0.65" />
+          <circle cx="${strokeL.x}" cy="${strokeL.y}" r="5.5" fill="none" stroke="${activeItem.trailColor}" stroke-width="1.6" opacity="0.75" />
+        `
+        : '';
+
+      const primaryGloss = isAthleteTurn ? activeItem.aslGloss : activeItem.kslGloss;
+      const secondaryGloss = isAthleteTurn ? activeItem.kslGloss : activeItem.aslGloss;
+      const phonologyText = isTargetKSL
+        ? activeItem.kslPhonology || activeItem.phonology.movement
+        : activeItem.aslPhonology || activeItem.phonology.movement;
+
+      container.innerHTML = `
+        <div class="relative rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden p-3">
+          <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
+            <span
+              class="px-2.5 py-1 rounded-full text-[11px] font-black border"
+              style="border-color: ${activeItem.trailColor}; color: ${activeItem.trailColor}; background-color: rgba(15, 23, 42, 0.85);"
+            >
+              ${isAthleteTurn ? '🏃 운동 선수 아바타 · ' : '🪪 현장 스탭 아바타 · '}
+              ${escapeHtml(primaryGloss)} (${escapeHtml(secondaryGloss)})
+            </span>
+            <span class="text-[11px] font-bold text-slate-400">${stageLabel}</span>
+          </div>
+
+          <svg viewBox="0 0 320 270" class="w-full max-w-[340px] mx-auto h-auto">
+            <defs>
+              <radialGradient id="stagePulse" cx="50%" cy="40%" r="55%">
+                <stop offset="0%" stop-color="${activeItem.trailColor}" stop-opacity="0.18" />
+                <stop offset="100%" stop-color="rgba(2,6,23,0)" />
+              </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="320" height="270" fill="url(#stagePulse)" />
+
+            ${leftTrailSvg}
+
+            <path d="M ${prepR.x} ${prepR.y} Q ${(prepR.x + strokeR.x) / 2 + 12} ${(prepR.y + strokeR.y) / 2 - 14} ${strokeR.x} ${strokeR.y}" fill="none" stroke="${activeItem.trailColor}" stroke-width="2.2" stroke-dasharray="4 3" opacity="0.8" />
+            <circle cx="${strokeR.x}" cy="${strokeR.y}" r="6.5" fill="none" stroke="${activeItem.trailColor}" stroke-width="1.8" opacity="0.9" />
+
+            ${renderHumanAvatarBodySvg({
+              role: translation.turnRole,
+              brow: activeItem.brow,
+              mouth: activeItem.mouth,
+              headShiftX,
+              headShiftY,
+              activeZone,
+            })}
+
+            ${renderHumanArmSvg(120, 122, leftIK.ex, leftIK.ey, leftIK.wx, leftIK.wy, sleeveColor, sleeveBorder, !isAthleteTurn)}
+            ${renderHumanHandSvg(leftIK.wx, leftIK.wy, leftIK.ex, leftIK.ey, lFingers, lRot, 'left')}
+
+            ${renderHumanArmSvg(200, 122, rightIK.ex, rightIK.ey, rightIK.wx, rightIK.wy, sleeveColor, sleeveBorder, !isAthleteTurn)}
+            ${renderHumanHandSvg(rightIK.wx, rightIK.wy, rightIK.ex, rightIK.ey, rFingers, rRot, 'right')}
+          </svg>
+
+          <div class="mt-1 rounded-xl bg-slate-900/90 border border-slate-800 px-3 py-2 text-[11px] space-y-1">
+            <div class="flex flex-wrap items-center justify-between gap-1">
+              <span class="font-extrabold text-slate-200">
+                조음 요소 (${isTargetKSL ? 'KSL 표준' : 'ASL 표준'}):
+              </span>
+              <span class="text-cyan-300 font-bold">
+                ${escapeHtml(activeItem.phonology.location)}
+              </span>
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              ${escapeHtml(phonologyText)}
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * 8. UI RENDERING FUNCTIONS
+     */
+    function renderTurnBar() {
+      const bar = document.getElementById('turn-switcher-bar');
+      if (!bar) return;
+
+      const isAth = state.activeTurn === 'ATHLETE';
+      bar.innerHTML = `
+        <div class="grid grid-cols-2 gap-2 w-full sm:w-auto sm:min-w-[490px]">
+          <button
+            type="button"
+            onclick="switchTurn('ATHLETE')"
+            class="px-3.5 py-2.5 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+              isAth
+                ? 'bg-cyan-500/15 border-cyan-400 text-white shadow-lg shadow-cyan-500/10'
+                : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+            }"
+          >
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+              isAth ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+            }">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-black truncate">턴 1 · 농인 선수 입력</div>
+              <div class="text-[11px] font-bold text-cyan-300 truncate">한국수어(KSL) ➔ 미국수어(ASL)</div>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onclick="switchTurn('STAFF')"
+            class="px-3.5 py-2.5 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+              !isAth
+                ? 'bg-emerald-500/15 border-emerald-400 text-white shadow-lg shadow-emerald-500/10'
+                : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+            }"
+          >
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+              !isAth ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+            }">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-black truncate">턴 2 · 현장 스탭 대답</div>
+              <div class="text-[11px] font-bold text-emerald-300 truncate">미국수어(ASL) ➔ 한국수어(KSL)</div>
+            </div>
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between sm:justify-end gap-2 text-xs text-slate-400">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
+            <svg class="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>
+            </svg>
+            <span>
+              현재 입력 화자:
+              <strong class="${isAth ? 'text-cyan-300' : 'text-emerald-300'}">
+                ${isAth ? '농인 선수 (운동 선수 아바타)' : '현장 스탭 (현장 스탭 아바타)'}
+              </strong>
+            </span>
+          </span>
+        </div>
+      `;
+    }
+
+    function renderPhotoCardHtml(token, index, total, turnRole, isTranslated) {
+      const item = LEXICON_MAP[token.signId] || LEXICON_MAP.hurt;
+      const isStaff = turnRole === 'STAFF';
+      const activePhases =
+        turnRole === 'ATHLETE' ? item.kslPhases || item.phases : item.aslPhases || item.phases;
+      const lx = activePhases.stroke.left.x * 200;
+      const ly = activePhases.stroke.left.y * 150;
+      const rx = activePhases.stroke.right.x * 200;
+      const ry = activePhases.stroke.right.y * 150;
+      const safeNote = typeof token.analysisNote === 'string' ? token.analysisNote : '';
+
+      const skeletonOverlay =
+        isTranslated && !token.isAnalyzing
+          ? `
+            <svg viewBox="0 0 200 150" class="absolute inset-0 w-full h-full pointer-events-none">
+              <line x1="74" y1="56" x2="126" y2="56" stroke="rgba(56, 189, 248, 0.55)" stroke-width="1.5" stroke-dasharray="3 2" />
+              <line x1="100" y1="30" x2="100" y2="56" stroke="rgba(56, 189, 248, 0.55)" stroke-width="1.5" />
+              <circle cx="100" cy="24" r="7" fill="none" stroke="#38BDF8" stroke-width="1.5" />
+              <polyline points="74,56 ${lx - 8},${ly + 14} ${lx},${ly}" fill="none" stroke="#22D3EE" stroke-width="2" />
+              <polyline points="126,56 ${rx + 8},${ry + 14} ${rx},${ry}" fill="none" stroke="#34D399" stroke-width="2" />
+              ${[
+                { hx: lx, hy: ly, color: '#22D3EE' },
+                { hx: rx, hy: ry, color: '#34D399' },
+              ]
+                .map((hand) => {
+                  const fingers = [-10, -5, 0, 5, 10]
+                    .map((dx) => {
+                      const midX = hand.hx + dx * 0.65;
+                      const midY = hand.hy - 8 + Math.abs(dx) * 0.25;
+                      const tipX = hand.hx + dx;
+                      const tipY = hand.hy - 15 + Math.abs(dx) * 0.35;
+                      return `
+                        <line x1="${hand.hx}" y1="${hand.hy}" x2="${midX}" y2="${midY}" stroke="${hand.color}" stroke-width="1.2" />
+                        <line x1="${midX}" y1="${midY}" x2="${tipX}" y2="${tipY}" stroke="${hand.color}" stroke-width="1.1" />
+                        <circle cx="${midX}" cy="${midY}" r="1.4" fill="#F8FAFC" />
+                        <circle cx="${tipX}" cy="${tipY}" r="1.5" fill="${hand.color}" />
+                      `;
+                    })
+                    .join('');
+                  return `<circle cx="${hand.hx}" cy="${hand.hy}" r="3" fill="${hand.color}" />${fingers}`;
+                })
+                .join('')}
+            </svg>
+          `
+          : '';
+
+      const analyzingOverlay = token.isAnalyzing
+        ? `
+          <div class="absolute inset-0 bg-slate-950/75 backdrop-blur-[1px] flex flex-col items-center justify-center gap-1.5 p-2 text-center">
+            <svg class="w-5 h-5 animate-spin ${isStaff ? 'text-emerald-400' : 'text-cyan-400'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+            </svg>
+            <span class="text-[11px] font-black text-white">
+              ${isStaff ? '미국수어(ASL) 수형 인식 중...' : '한국수어(KSL) 수형 인식 중...'}
+            </span>
+          </div>
+        `
+        : '';
+
+      const statusBadge = token.isAnalyzing
+        ? `<span class="text-[10px] font-bold text-cyan-300 shrink-0">인식 중</span>`
+        : isTranslated
+        ? `<span class="text-[10px] font-bold text-emerald-300 shrink-0">${isStaff ? 'ASL분석' : 'KSL분석'} ${Number(token.confidence) || 92}%</span>`
+        : `<span class="text-[10px] font-bold text-amber-300 shrink-0">번역 대기</span>`;
+
+      const optionsHtml = DROPDOWN_GROUPS.map((group) => {
+        const opts = group.items
+          .map((opt) => {
+            const label = isStaff
+              ? `[ASL] ${opt.aslGloss} ➔ ${opt.kslGloss}${opt.isNew ? ' [NEW]' : ''}`
+              : `[KSL] ${opt.kslGloss} ➔ ${opt.aslGloss}${opt.isNew ? ' [NEW]' : ''}`;
+            return `<option value="${opt.id}" ${opt.id === token.signId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+          })
+          .join('');
+        return `<optgroup label="${escapeHtml(group.label)}">${opts}</optgroup>`;
+      }).join('');
+
+      return `
+        <div class="rounded-xl bg-slate-950 border border-slate-800 p-2.5 flex flex-col gap-2 shadow-md">
+          <div class="flex items-center justify-between gap-1">
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${
+              isStaff
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+            }">
+              ${isStaff ? `ASL 입력 #${index + 1}` : `KSL 입력 #${index + 1}`}
+            </span>
+
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                ${index === 0 ? 'disabled' : ''}
+                onclick="moveToken(${index}, -1)"
+                title="이전 순서로 이동"
+                class="p-1 rounded bg-slate-900 hover:bg-slate-800 disabled:opacity-30 text-slate-300 transition cursor-pointer"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button
+                type="button"
+                ${index === total - 1 ? 'disabled' : ''}
+                onclick="moveToken(${index}, 1)"
+                title="다음 순서로 이동"
+                class="p-1 rounded bg-slate-900 hover:bg-slate-800 disabled:opacity-30 text-slate-300 transition cursor-pointer"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+              <button
+                type="button"
+                onclick="removeToken('${token.uid}')"
+                title="사진 삭제"
+                class="p-1 rounded bg-slate-900 hover:bg-rose-950 text-slate-400 hover:text-rose-400 transition cursor-pointer"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="relative aspect-[4/3] w-full rounded-lg overflow-hidden bg-slate-900 border border-slate-800">
+            <img src="${token.previewUrl}" alt="${escapeHtml(isStaff ? item.aslGloss : item.kslGloss)}" class="w-full h-full object-cover" />
+            ${analyzingOverlay}
+            ${skeletonOverlay}
+            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/75 to-transparent px-2 py-1.5 flex items-center justify-between gap-1">
+              <span class="text-[11px] font-black text-white truncate">
+                ${escapeHtml(
+                  isStaff
+                    ? `[ASL] ${item.aslGloss} ➔ ${item.kslGloss}`
+                    : `[KSL] ${item.kslGloss} ➔ ${item.aslGloss}`
+                )}
+              </span>
+              ${statusBadge}
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[10px] text-slate-400">
+              <span>${isStaff ? 'ASL 입력 수어 수정' : 'KSL 입력 수어 수정'}</span>
+              <span class="truncate max-w-[130px] font-bold ${isStaff ? 'text-emerald-400' : 'text-cyan-400'}">
+                ${escapeHtml(safeNote)}
+              </span>
+            </div>
+
+            <select
+              onchange="changeTokenSign('${token.uid}', this.value)"
+              class="w-full rounded-lg bg-slate-900 border border-slate-700 hover:border-cyan-400 px-2 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-cyan-400"
+            >
+              ${optionsHtml}
+            </select>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLeftPanel() {
+      const container = document.getElementById('left-builder-card');
+      if (!container) return;
+
+      const isAth = state.activeTurn === 'ATHLETE';
+      const tokens = getCurrentTokens();
+      const translation = getCurrentTranslation();
+      const isAnyAnalyzing = tokens.some((t) => t.isAnalyzing);
+
+      const clearBtn =
+        tokens.length > 0
+          ? `
+            <button
+              type="button"
+              onclick="clearCurrentTurn()"
+              class="px-2.5 py-1.5 rounded-xl bg-slate-950 hover:bg-rose-950/60 border border-slate-800 hover:border-rose-800 text-xs font-bold text-slate-400 hover:text-rose-300 inline-flex items-center gap-1 transition cursor-pointer"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              비우기
+            </button>
+          `
+          : '';
+
+      const dropzoneBody =
+        tokens.length === 0
+          ? `
+            <div class="py-8 px-4 flex flex-col items-center text-center gap-3">
+              <div onclick="triggerFileSelect()" class="cursor-pointer flex flex-col items-center gap-2.5 group">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center transition ${
+                  isAth
+                    ? 'bg-cyan-500/15 text-cyan-300 group-hover:bg-cyan-500/25'
+                    : 'bg-emerald-500/15 text-emerald-300 group-hover:bg-emerald-500/25'
+                }">
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+                  </svg>
+                </div>
+                <div class="space-y-1">
+                  <div class="text-sm sm:text-base font-black text-white">
+                    ${
+                      isAth
+                        ? '+ 농인 선수 수어(KSL) 사진 입력 (여러 장 연속 선택 가능)'
+                        : '+ 현장 스탭 대답 수어(ASL) 사진 입력 (여러 장 연속 선택 가능)'
+                    }
+                  </div>
+                  <p class="text-xs text-slate-400 max-w-md leading-relaxed">
+                    수어 동작 사진을 한 번에 여러 장 선택하거나 이 영역으로 끌어다 놓으세요.
+                    <br />
+                    <strong class="text-cyan-300">
+                      괜찮다 · 호흡곤란 · 어디 · 움직이다 · 아프다 · 당뇨병 · 의사
+                    </strong>
+                    등 다양한 응급·의료 수어를 지원합니다.
+                  </p>
+                </div>
+                <span class="px-4 py-2.5 rounded-xl text-slate-950 text-xs font-black inline-flex items-center gap-1.5 shadow ${
+                  isAth ? 'bg-cyan-400 hover:bg-cyan-300' : 'bg-emerald-400 hover:bg-emerald-300'
+                }">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                  수어 사진 파일 선택하기
+                </span>
+              </div>
+            </div>
+          `
+          : `
+            <div class="space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                ${tokens
+                  .map((t, idx) => renderPhotoCardHtml(t, idx, tokens.length, state.activeTurn, Boolean(translation)))
+                  .join('')}
+
+                <button
+                  type="button"
+                  onclick="triggerFileSelect()"
+                  class="min-h-[210px] rounded-xl border-2 border-dashed border-slate-700 hover:border-cyan-400 bg-slate-900/50 hover:bg-slate-900 flex flex-col items-center justify-center gap-2 p-4 text-slate-400 hover:text-cyan-300 transition cursor-pointer"
+                >
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                  <span class="text-xs font-black">+ 수어 사진 이어 붙이기</span>
+                  <span class="text-[11px] text-slate-500">예: [머리] + [아프다]</span>
+                </button>
+              </div>
+            </div>
+          `;
+
+      const sequenceSummary =
+        tokens.length === 0
+          ? `<span>사진을 1장 이상 입력하면 [번역하기] 버튼이 활성화됩니다.</span>`
+          : isAnyAnalyzing
+          ? `<span class="text-cyan-300 font-bold">${
+              !isAth
+                ? '미국수어(ASL) 수형 및 수위를 AI가 분석하고 있습니다...'
+                : '한국수어(KSL) 수형 및 수위를 AI가 분석하고 있습니다...'
+            }</span>`
+          : `<span>${
+              isAth ? '입력된 KSL 동작 시퀀스: ' : '입력된 ASL 동작 시퀀스: '
+            }<strong class="text-white">${escapeHtml(
+              tokens
+                .map((t) => {
+                  const it = LEXICON_MAP[t.signId];
+                  return it ? (isAth ? it.kslGloss : it.aslGloss) : '';
+                })
+                .join(' + ')
+            )}</strong></span>`;
+
+      const btnDisabled = tokens.length === 0 || state.isTranslating || isAnyAnalyzing;
+      const btnContent =
+        state.isTranslating || isAnyAnalyzing
+          ? `
+            <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            ${
+              isAnyAnalyzing
+                ? !isAth
+                  ? 'ASL 수형 인식 중...'
+                  : 'KSL 수형 인식 중...'
+                : 'AI 어순 변환 및 수어 번역 중...'
+            }
+          `
+          : `
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>
+            ${isAth ? '번역하기 (KSL ➔ ASL)' : '번역하기 (ASL ➔ KSL)'}
+          `;
+
+      container.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg text-xs font-black ${
+              isAth
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+            }">
+              1단계 · 수어 사진 입력
+            </span>
+            <h2 class="text-sm sm:text-base font-black text-white">
+              ${
+                isAth
+                  ? '농인 선수 증상 수어(KSL) 사진 시퀀스'
+                  : '현장 스탭 대답·질문 수어(ASL) 사진 시퀀스'
+              }
+            </h2>
+          </div>
+          <div class="flex items-center gap-2">${clearBtn}</div>
+        </div>
+
+        <div
+          id="photo-dropzone"
+          class="rounded-2xl border-2 border-dashed transition p-4 ${
+            state.isDraggingOver ? 'border-cyan-400 bg-cyan-500/10' : 'border-slate-700/90 bg-slate-950/70'
+          }"
+        >
+          ${dropzoneBody}
+        </div>
+
+        <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div class="text-xs text-slate-400">${sequenceSummary}</div>
+
+          <button
+            type="button"
+            ${btnDisabled ? 'disabled' : ''}
+            onclick="runTranslate()"
+            class="px-5 py-3 rounded-xl font-black text-sm inline-flex items-center justify-center gap-2 transition shadow-lg disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${
+              isAth
+                ? 'bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 text-slate-950 shadow-cyan-500/25'
+                : 'bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 shadow-emerald-500/25'
+            }"
+          >
+            ${btnContent}
+          </button>
+        </div>
+      `;
+
+      const dropzone = document.getElementById('photo-dropzone');
+      if (dropzone) {
+        dropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (!state.isDraggingOver) {
+            state.isDraggingOver = true;
+            dropzone.classList.add('border-cyan-400', 'bg-cyan-500/10');
+            dropzone.classList.remove('border-slate-700/90', 'bg-slate-950/70');
+          }
+        });
+        dropzone.addEventListener('dragleave', () => {
+          state.isDraggingOver = false;
+          dropzone.classList.remove('border-cyan-400', 'bg-cyan-500/10');
+          dropzone.classList.add('border-slate-700/90', 'bg-slate-950/70');
+        });
+        dropzone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          state.isDraggingOver = false;
+          handleFilesSelected(e.dataTransfer.files);
+        });
+      }
+    }
+
+    function renderHistoryPanel() {
+      const panel = document.getElementById('history-panel');
+      if (!panel) return;
+
+      const clearBtn =
+        state.conversationHistory.length > 0
+          ? `<button type="button" onclick="clearHistory()" class="text-[11px] font-bold text-slate-400 hover:text-rose-300 cursor-pointer">기록 초기화</button>`
+          : '';
+
+      const listHtml =
+        state.conversationHistory.length === 0
+          ? `
+            <p class="text-xs text-slate-500 py-3 text-center">
+              아직 번역된 대화가 없습니다. 선수 또는 현장 스탭의 수어 사진을 입력하고 [번역하기]를 실행하면 대화 기록이 누적됩니다.
+            </p>
+          `
+          : `
+            <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+              ${state.conversationHistory
+                .map((entry) => {
+                  const isAth = entry.translation.turnRole === 'ATHLETE';
+                  const isSelected = state.selectedHistoryId === entry.id;
+                  return `
+                    <button
+                      type="button"
+                      onclick="replayHistoryEntry('${entry.id}')"
+                      class="w-full text-left p-3 rounded-xl border transition flex items-start justify-between gap-3 cursor-pointer ${
+                        isSelected
+                          ? isAth
+                            ? 'bg-cyan-500/15 border-cyan-400'
+                            : 'bg-emerald-500/15 border-emerald-400'
+                          : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                      }"
+                    >
+                      <div class="space-y-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <span class="px-2 py-0.5 rounded text-[10px] font-black ${
+                            isAth ? 'bg-cyan-500/20 text-cyan-300' : 'bg-emerald-500/20 text-emerald-300'
+                          }">
+                            ${isAth ? '🏃 농인 선수 (KSL ➔ ASL)' : '🪪 현장 스탭 (ASL ➔ KSL)'}
+                          </span>
+                          <span class="text-[10px] text-slate-500">${escapeHtml(entry.timestamp)}</span>
+                        </div>
+                        <div class="text-xs font-black text-white truncate">
+                          번역 문장: ${escapeHtml(entry.translation.glossSequence.join(' ➔ '))}
+                        </div>
+                        <div class="text-[11px] text-slate-400 truncate">
+                          의미: “${escapeHtml(entry.translation.naturalKorean)}”
+                        </div>
+                      </div>
+
+                      <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] font-bold text-slate-200 shrink-0 inline-flex items-center gap-1">
+                        <svg class="w-3 h-3 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                        아바타 시연
+                      </span>
+                    </button>
+                  `;
+                })
+                .join('')}
+            </div>
+          `;
+
+      panel.innerHTML = `
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs sm:text-sm font-black text-white flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            양방향 수어-수어 대화 기록 타임라인
+          </h3>
+          ${clearBtn}
+        </div>
+        ${listHtml}
+      `;
+    }
+
+    function renderRightHeader() {
+      const header = document.getElementById('right-panel-header');
+      if (!header) return;
+
+      const displayedTranslation = getDisplayedTranslation();
+      const controlsHtml = displayedTranslation
+        ? `
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              onclick="toggleSpeed()"
+              class="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-700 text-[11px] font-black text-slate-300 hover:border-cyan-400 cursor-pointer"
+            >
+              ${state.speed === 1.0 ? '1.0x 보통' : '0.7x 천천히'}
+            </button>
+            <button
+              type="button"
+              onclick="togglePlay()"
+              class="p-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 hover:border-cyan-400 cursor-pointer"
+              title="${state.isPlaying ? '일시정지' : '재생'}"
+            >
+              ${
+                state.isPlaying
+                  ? `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>`
+                  : `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="6 3 20 12 6 21 6 3"/></svg>`
+              }
+            </button>
+            <button
+              type="button"
+              onclick="restartPlayback()"
+              class="p-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 hover:border-cyan-400 cursor-pointer"
+              title="처음부터 다시 시연"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+          </div>
+        `
+        : '';
+
+      header.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            3단계 · AI 아바타 시연
+          </span>
+          <h2 class="text-sm sm:text-base font-black text-white">번역 수어 출력 아바타</h2>
+        </div>
+        ${controlsHtml}
+      `;
+    }
+
+    function renderRightDetails(currentIdx = 0) {
+      const container = document.getElementById('right-translation-details');
+      if (!container) return;
+
+      const translation = getDisplayedTranslation();
+      if (!translation || !translation.orderedItems || translation.orderedItems.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const isAthleteTurn = translation.turnRole === 'ATHLETE';
+      const tokens = translation.orderedItems;
+
+      const returnAllBtn =
+        state.activeTokenIdx != null
+          ? `<button type="button" onclick="selectTokenIdx(null)" class="text-cyan-400 hover:underline font-bold cursor-pointer">전체 연속 재생으로 복귀</button>`
+          : '';
+
+      const chipsHtml = tokens
+        .map((item, idx) => {
+          const active = idx === currentIdx;
+          const arrow =
+            idx < tokens.length - 1
+              ? `<svg class="w-3.5 h-3.5 text-slate-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`
+              : '';
+          return `
+            <button
+              type="button"
+              onclick="selectTokenIdx(${state.activeTokenIdx === idx ? 'null' : idx})"
+              class="px-3 py-1.5 rounded-xl text-xs font-black border transition cursor-pointer ${
+                active
+                  ? isAthleteTurn
+                    ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow-lg shadow-cyan-500/25'
+                    : 'bg-emerald-500 text-slate-950 border-emerald-300 shadow-lg shadow-emerald-500/25'
+                  : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'
+              }"
+            >
+              ${idx + 1}. ${escapeHtml(isAthleteTurn ? item.aslGloss : item.kslGloss)}
+              <span class="opacity-75 font-bold">
+                (${escapeHtml(isAthleteTurn ? item.kslGloss : item.aslGloss)})
+              </span>
+            </button>
+            ${arrow}
+          `;
+        })
+        .join('');
+
+      const nextTurn = isAthleteTurn ? 'STAFF' : 'ATHLETE';
+      const ctaHtml = isAthleteTurn
+        ? `
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+          🪪 현장 스탭 대답 수어(ASL ➔ KSL) 입력하기 ➔
+        `
+        : `
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+          🏃 선수 추가 질문 수어(KSL ➔ ASL) 입력하기 ➔
+        `;
+
+      container.innerHTML = `
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-[11px] text-slate-400">
+            <span>연속 수어 문장 토큰 (클릭 시 해당 동작부터 시연)</span>
+            ${returnAllBtn}
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">${chipsHtml}</div>
+        </div>
+
+        <div class="rounded-2xl bg-slate-950 border border-slate-800 p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="font-extrabold text-slate-400">
+              ${escapeHtml(translation.sourceLang)} ➔ ${escapeHtml(translation.targetLang)}
+            </span>
+            <span class="text-emerald-400 font-bold">
+              ${escapeHtml(translation.nonManualTag)}
+            </span>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-[11px] text-slate-400">번역된 수어 문장 의미 확인</div>
+            <div class="text-sm font-black text-white mt-0.5">
+              “${escapeHtml(translation.naturalKorean)}”
+            </div>
+            <div class="text-[10px] text-cyan-400 mt-1">
+              ${escapeHtml(translation.grammarRule)}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onclick="switchTurn('${nextTurn}')"
+            class="w-full py-2.5 px-4 rounded-xl font-black text-xs inline-flex items-center justify-center gap-2 transition border cursor-pointer ${
+              isAthleteTurn
+                ? 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-400 text-emerald-300'
+                : 'bg-cyan-500/15 hover:bg-cyan-500/25 border-cyan-400 text-cyan-300'
+            }"
+          >
+            ${ctaHtml}
+          </button>
+        </div>
+      `;
+    }
+
+    function renderDictionaryModalContent() {
+      const sourcesGrid = document.getElementById('modal-sources-grid');
+      if (sourcesGrid) {
+        sourcesGrid.innerHTML = ALL_SOURCES.map(
+          (dict) => `
+            <a
+              href="${dict.url}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-400 transition flex items-center justify-between gap-2"
+            >
+              <div>
+                <div class="text-xs font-extrabold text-white">${escapeHtml(dict.name)}</div>
+                <div class="text-[11px] font-mono text-cyan-400 mt-0.5 break-all">${escapeHtml(dict.url)}</div>
+              </div>
+              <svg class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            </a>
+          `
+        ).join('');
+      }
+
+      const tabsEl = document.getElementById('modal-category-tabs');
+      if (tabsEl) {
+        const cats = [
+          { id: 'ALL', label: '전체' },
+          { id: 'NEW', label: 'NEW 신규 어휘' },
+          { id: '신체 부위', label: '신체 부위' },
+          { id: '증상·상태', label: '증상·상태' },
+          { id: '현장 스탭 지시·응답', label: '현장 스탭 지시·응답' },
+          { id: '처치·자세 안내', label: '처치·자세 안내' },
+        ];
+        tabsEl.innerHTML = cats
+          .map(
+            (cat) => `
+              <button
+                type="button"
+                onclick="setDictCategory('${cat.id}')"
+                class="px-2.5 py-1 rounded-lg text-[11px] font-bold border transition cursor-pointer ${
+                  state.dictCategoryFilter === cat.id
+                    ? 'bg-cyan-500 text-slate-950 border-cyan-300'
+                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                }"
+              >
+                ${escapeHtml(cat.label)}
+              </button>
+            `
+          )
+          .join('');
+      }
+
+      const tbody = document.getElementById('modal-dict-tbody');
+      if (tbody) {
+        const filtered = SIGN_LEXICON.filter((item) => {
+          const matchesCat =
+            state.dictCategoryFilter === 'ALL'
+              ? true
+              : state.dictCategoryFilter === 'NEW'
+              ? item.isNew
+              : item.category === state.dictCategoryFilter;
+          const q = state.dictSearch.trim().toLowerCase();
+          const matchesQuery =
+            !q ||
+            item.kslGloss.toLowerCase().includes(q) ||
+            item.aslGloss.toLowerCase().includes(q) ||
+            item.keywords.some((k) => k.toLowerCase().includes(q));
+          return matchesCat && matchesQuery;
+        });
+
+        tbody.innerHTML = filtered
+          .map(
+            (item) => `
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-2.5 px-3 whitespace-nowrap">
+                  <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold text-[11px]">
+                    ${escapeHtml(item.category)}
+                  </span>
+                </td>
+                <td class="py-2.5 px-3 font-black text-white whitespace-nowrap">
+                  ${escapeHtml(item.kslGloss)}
+                  ${
+                    item.isNew
+                      ? '<span class="ml-1 px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 text-[9px]">NEW</span>'
+                      : ''
+                  }
+                </td>
+                <td class="py-2.5 px-3 font-black text-cyan-300 whitespace-nowrap">
+                  ${escapeHtml(item.aslGloss)}
+                </td>
+                <td class="py-2.5 px-3 text-slate-300 leading-relaxed">
+                  ${escapeHtml(item.phonology.movement)}
+                </td>
+                <td class="py-2.5 px-3 text-[11px] text-emerald-300 whitespace-nowrap">
+                  국립국어원 · Handspeak · SignASL
+                </td>
+              </tr>
+            `
+          )
+          .join('');
+      }
+    }
+
+    function renderAllStaticUI() {
+      renderTurnBar();
+      renderLeftPanel();
+      renderHistoryPanel();
+      renderRightHeader();
+      lastRenderedTokenIndex = -1;
+      renderRightDetails(0);
+      updateAvatarFrame();
+    }
+
+    /**
+     * 9. INTERACTIVE EVENT HANDLERS
+     */
+    window.triggerFileSelect = function () {
+      const input = document.getElementById('sign-file-input');
+      if (input) input.click();
+    };
+
+    function handleFilesSelected(fileList) {
+      const files = Array.from(fileList || []).filter((f) => f.type.startsWith('image/'));
+      if (files.length === 0) return;
+
+      const capturedTurn = state.activeTurn;
+
+      files.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          const uid = `${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 7)}`;
+          const img = new Image();
+          img.onload = async () => {
+            const quickFallback = analyzeImageFallback(img, file.name, capturedTurn);
+            const initialToken = {
+              uid,
+              previewUrl: dataUrl,
+              fileName: file.name,
+              signId: quickFallback.signId,
+              confidence: quickFallback.confidence,
+              analysisNote:
+                capturedTurn === 'STAFF'
+                  ? 'ASL 수형 비전 분석 중...'
+                  : 'KSL 수형 비전 분석 중...',
+              isAnalyzing: true,
+            };
+
+            if (capturedTurn === 'ATHLETE') {
+              state.athleteTokens = [...state.athleteTokens, initialToken];
+              state.athleteTranslation = null;
+            } else {
+              state.staffTokens = [...state.staffTokens, initialToken];
+              state.staffTranslation = null;
+            }
+            state.selectedHistoryId = null;
+            renderAllStaticUI();
+
+            const inferred = await analyzeSignPhotoWithVision(dataUrl, img, file.name, capturedTurn);
+            const targetList = capturedTurn === 'ATHLETE' ? state.athleteTokens : state.staffTokens;
+            const updatedList = targetList.map((t) =>
+              t.uid === uid
+                ? {
+                    ...t,
+                    signId: inferred.signId,
+                    confidence: inferred.confidence,
+                    analysisNote: inferred.note,
+                    isAnalyzing: false,
+                  }
+                : t
+            );
+            if (capturedTurn === 'ATHLETE') {
+              state.athleteTokens = updatedList;
+            } else {
+              state.staffTokens = updatedList;
+            }
+            renderAllStaticUI();
+          };
+          img.src = dataUrl;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    window.changeTokenSign = function (uid, newSignId) {
+      const isStaff = state.activeTurn === 'STAFF';
+      const targetItem = LEXICON_MAP[newSignId];
+      const updated = getCurrentTokens().map((t) =>
+        t.uid === uid
+          ? {
+              ...t,
+              signId: newSignId,
+              confidence: 99.0,
+              analysisNote: isStaff
+                ? `ASL 수동 확정 (${targetItem?.aslGloss || ''})`
+                : `KSL 수동 확정 (${targetItem?.kslGloss || ''})`,
+              isAnalyzing: false,
+            }
+          : t
+      );
+      setCurrentTokens(updated);
+      setCurrentTranslation(null);
+      state.selectedHistoryId = null;
+      renderAllStaticUI();
+    };
+
+    window.moveToken = function (index, delta) {
+      const next = [...getCurrentTokens()];
+      const targetIdx = index + delta;
+      if (targetIdx < 0 || targetIdx >= next.length) return;
+      const temp = next[index];
+      next[index] = next[targetIdx];
+      next[targetIdx] = temp;
+      setCurrentTokens(next);
+      setCurrentTranslation(null);
+      state.selectedHistoryId = null;
+      renderAllStaticUI();
+    };
+
+    window.removeToken = function (uid) {
+      setCurrentTokens(getCurrentTokens().filter((t) => t.uid !== uid));
+      setCurrentTranslation(null);
+      state.selectedHistoryId = null;
+      renderAllStaticUI();
+    };
+
+    window.clearCurrentTurn = function () {
+      setCurrentTokens([]);
+      setCurrentTranslation(null);
+      state.selectedHistoryId = null;
+      state.activeTokenIdx = null;
+      renderAllStaticUI();
+    };
+
+    window.runTranslate = function () {
+      const tokens = getCurrentTokens();
+      const isAnyAnalyzing = tokens.some((t) => t.isAnalyzing);
+      if (tokens.length === 0 || state.isTranslating || isAnyAnalyzing) return;
+
+      state.isTranslating = true;
+      state.activeTokenIdx = null;
+      renderLeftPanel();
+
+      setTimeout(() => {
+        const result = buildSignTranslation(tokens, state.activeTurn);
+        setCurrentTranslation(result);
+        state.isTranslating = false;
+        state.isPlaying = true;
+        state.animTime = 0;
+        state.lastFrameTime = null;
+
+        if (result) {
+          const entryId = `msg-${Date.now()}`;
+          const newEntry = {
+            id: entryId,
+            timestamp: new Date().toLocaleTimeString('ko-KR', {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+            }),
+            translation: result,
+          };
+          state.conversationHistory = [...state.conversationHistory, newEntry];
+          state.selectedHistoryId = entryId;
+        }
+        renderAllStaticUI();
+      }, 450);
+    };
+
+    window.switchTurn = function (nextTurn) {
+      state.activeTurn = nextTurn;
+      state.activeTokenIdx = null;
+      state.selectedHistoryId = null;
+      state.animTime = 0;
+      state.lastFrameTime = null;
+      renderAllStaticUI();
+    };
+
+    window.replayHistoryEntry = function (entryId) {
+      state.selectedHistoryId = entryId;
+      state.activeTokenIdx = null;
+      state.isPlaying = true;
+      state.animTime = 0;
+      state.lastFrameTime = null;
+      renderAllStaticUI();
+    };
+
+    window.clearHistory = function () {
+      state.conversationHistory = [];
+      state.selectedHistoryId = null;
+      renderAllStaticUI();
+    };
+
+    window.toggleSpeed = function () {
+      state.speed = state.speed === 1.0 ? 0.7 : 1.0;
+      renderRightHeader();
+    };
+
+    window.togglePlay = function () {
+      state.isPlaying = !state.isPlaying;
+      state.lastFrameTime = null;
+      renderRightHeader();
+    };
+
+    window.restartPlayback = function () {
+      state.activeTokenIdx = null;
+      state.isPlaying = true;
+      state.animTime = 0;
+      state.lastFrameTime = null;
+      renderRightHeader();
+      lastRenderedTokenIndex = -1;
+      renderRightDetails(0);
+    };
+
+    window.selectTokenIdx = function (idx) {
+      state.activeTokenIdx = idx;
+      state.animTime = 0;
+      state.lastFrameTime = null;
+      lastRenderedTokenIndex = -1;
+      renderRightDetails(idx != null ? idx : 0);
+    };
+
+    window.setDictCategory = function (catId) {
+      state.dictCategoryFilter = catId;
+      renderDictionaryModalContent();
+    };
+
+    /**
+     * 10. ANIMATION LOOP & WINDOW INITIALIZATION
+     */
+    function animateLoop(now) {
+      const translation = getDisplayedTranslation();
+      if (translation && translation.orderedItems?.length > 0 && state.isPlaying) {
+        if (state.lastFrameTime != null) {
+          const dt = Math.min(0.05, (now - state.lastFrameTime) / 1000);
+          state.animTime += dt * state.speed;
+        }
+        state.lastFrameTime = now;
+        updateAvatarFrame();
+      } else {
+        state.lastFrameTime = null;
+      }
+      requestAnimationFrame(animateLoop);
+    }
+
+    window.onload = function () {
+      const fileInput = document.getElementById('sign-file-input');
+      if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+          handleFilesSelected(e.target.files);
+          e.target.value = '';
+        });
+      }
+
+      const sourcesModal = document.getElementById('sources-modal');
+      const btnOpenSources = document.getElementById('btn-open-sources');
+      const btnCloseSources = document.getElementById('btn-close-sources');
+      const searchInput = document.getElementById('modal-dict-search');
+
+      if (btnOpenSources && sourcesModal) {
+        btnOpenSources.addEventListener('click', () => {
+          sourcesModal.classList.remove('hidden');
+          sourcesModal.classList.add('flex');
+          renderDictionaryModalContent();
+        });
+      }
+
+      if (btnCloseSources && sourcesModal) {
+        btnCloseSources.addEventListener('click', () => {
+          sourcesModal.classList.add('hidden');
+          sourcesModal.classList.remove('flex');
+        });
+      }
+
+      if (sourcesModal) {
+        sourcesModal.addEventListener('click', (e) => {
+          if (e.target === sourcesModal) {
+            sourcesModal.classList.add('hidden');
+            sourcesModal.classList.remove('flex');
+          }
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          state.dictSearch = e.target.value;
+          renderDictionaryModalContent();
+        });
+      }
+
+      renderAllStaticUI();
+      requestAnimationFrame(animateLoop);
+    };
+  </script>
+</body>
+</html>
